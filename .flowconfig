@@ -1,0 +1,8 @@
+[ignore]
+.*/node_modules/flow-bin/.*
+
+[libs]
+./resources/interfaces
+./node_modules/iflow-koa/index.js.flow
+./node_modules/iflow-koa-router/index.js.flow
+./node_modules/iflow-koa-bodyparser/index.js.flow
