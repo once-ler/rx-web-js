@@ -2,8 +2,7 @@
 
 import {Observable, Subscription, Scheduler} from 'rxjs';
 import typeof { rxweb$HTTP, rxweb$HTTPS } from './rxweb';
-import type {rxweb$SocketType, rxweb$FilterFunc} from './rxweb';
-import type { rxweb$Task } from './rxweb';
+import type {rxweb$SocketType, rxweb$Task, rxweb$FilterFunc} from './rxweb';
 
 export class rxweb$Observer<rxweb$SocketType> {
   _observer: Observable<rxweb$Task<rxweb$SocketType>>;
