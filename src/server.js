@@ -1,8 +1,10 @@
 /* @flow */
 
-import typeof { rxweb$HTTP, rxweb$HTTPS } from './rxweb';
+import KoaServer from 'koa';
+import KoaServerRouter from 'koa-router';
 import type {
-  rxweb$SocketType,
+  rxweb$Request,
+  rxweb$Response,
   rxweb$Task,
   rxweb$Middleware,
   rxweb$FilterFunc,
@@ -12,21 +14,57 @@ import {rxweb$Observer} from './observer';
 import {rxweb$Subscriber} from './subscriber';
 import {rxweb$Subject} from './subject';
 
-export class rxweb$Server<T: rxweb$SocketType> {
-  sub: rxweb$Subject<T>;
-  middlewares: Array<rxweb$Middleware<rxweb$SocketType>>;
-  onNext: rxweb$Middleware<rxweb$SocketType>;
+declare type WebAction = (_request?: rxweb$Request, _response?: rxweb$Response) => void;
+
+export type rxweb$Route = {
+  expression: string;
+  verb: string;
+  action: WebAction;
+};
+
+export interface rxweb$IServer {
+  port: number;
+  sub: rxweb$Subject;
+  middlewares: Array<rxweb$Middleware>;
+  routes: Array<rxweb$Route>;
+  onNext: rxweb$Middleware;
+  applyRoutes: () => void;
+  getSubject: () => rxweb$Subject;
+  start: () => void;
+  makeObserversAndSubscribeFromMiddlewares: () => void;
+}
+
+class rxweb$ServerBase {
+  port: number;
+  sub: rxweb$Subject;
+  middlewares: Array<rxweb$Middleware>;
+  routes: Array<rxweb$Route>;
+  onNext: rxweb$Middleware;
+  getSubject(): rxweb$Subject {
+    return this.sub;
+  }
+}
+
+export class rxweb$Server extends rxweb$ServerBase {
+  server: Koa$Koa;
+  
   // routes:
   constructor(_port: number, _certFile?: string, _privateKeyFile?: string) {
-
+    super();
+    this.port = _port;
+    this.server = new KoaServer();
   }
 
   applyRoutes() {
+    for(let r of this.routes) {
+      KoaServerRouter[r.verb](r.expression, (ctx, next) => {
+        r.action(ctx.request, ctx.response);
+      });
+    }
 
-  }
-
-  getSubject(): rxweb$Subject<T> {
-    return this.sub;
+    this.server
+      .use(KoaServerRouter.routes())
+      .use(KoaServerRouter.allowedMethods);
   }
 
   start() {
@@ -41,27 +79,24 @@ export class rxweb$Server<T: rxweb$SocketType> {
 
     // Start the server.
     // TODO
+    this.server.listen(_port);
   }
 
   makeObserversAndSubscribeFromMiddlewares() {
+    // No subscription, observers does nothing.
+    // Create Observers that react to subscriber broadcast.
+    for(let m of this.middlewares) {
+      const o: rxweb$Observer = new rxweb$Observer(this.sub.get().asObservable(), m.filterFunc);
+      o.subscribe(m.subscribeFunc);
+    }
 
-  }
-}
-
-export class rxweb$HttpServer extends rxweb$Server<rxweb$HTTP> {
-  constructor(_port: number) {
-    super(_port);
-  }
-}
-
-export class rxweb$HttpsServer extends rxweb$Server<rxweb$HTTPS> {
-  constructor(_port: number, _certFile: string, _privateKeyFile: string) {
-    super(_port, _certFile, _privateKeyFile);
+    // Last Observer is the one that will respond to client after all middlwares have been processed.
+    const lastObserver: rxweb$Observer = new rxweb$Observer(this.sub.get().asObservable(), this.onNext.filterFunc);
+    lastObserver.subscribe(this.onNext.subscribeFunc);
   }
 }
 
 declare module "rxweb" {
-  declare var rxweb$Server: rxweb$Server<rxweb$SocketType>;
-  declare var rxweb$HttpServer: rxweb$HttpServer;
-  declare var rxweb$HttpsServer: rxweb$HttpsServer;
+  declare var rxweb$Server: rxweb$Server;
+  declare var rxweb$IServer: rxweb$IServer;
 }

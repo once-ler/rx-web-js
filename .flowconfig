@@ -1,8 +1,13 @@
-[ignore]
-.*/node_modules/flow-bin/.*
+[include]
 
 [libs]
 ./resources/interfaces
 ./node_modules/iflow-koa/index.js.flow
-./node_modules/iflow-koa-router/index.js.flow
 ./node_modules/iflow-koa-bodyparser/index.js.flow
+
+[options]
+
+[ignore]
+.*/node_modules/flow-bin/.*
+.*/node_modules/babel-.*/.*
+.*/node_modules/koa/.*
