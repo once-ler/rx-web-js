@@ -1,6 +1,6 @@
 /* @flow */
 
-import {Observable, Subscription, Scheduler} from 'rxjs';
+import {Observable, Scheduler} from 'rxjs';
 import type {rxweb$Task, rxweb$FilterFunc} from './rxweb';
 
 export class rxweb$Observer {
@@ -25,6 +25,6 @@ export class rxweb$Observer {
   }
 }
 
-declare module "rxweb" {
+declare module 'rxweb' {
   declare var Observer: rxweb$Observer;
 }

@@ -1,5 +1,5 @@
 /* @flow */
-
+/* eslint no-unused-vars: 0 */
 import {Subscription, Scheduler} from 'rxjs';
 import RxSubscriber from 'rxjs/Subscriber';
 import type {rxweb$Task } from './rxweb';
@@ -14,6 +14,6 @@ export class rxweb$Subscriber {
   }
 }
 
-declare module "rxweb" {
+declare module 'rxweb' {
   declare var Subscriber: rxweb$Subscriber;
 }

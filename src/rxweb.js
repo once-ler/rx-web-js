@@ -1,4 +1,5 @@
 /* @flow */
+/* eslint no-unused-expressions: 0, flowtype/no-weak-types: 0 */
 
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
 export type rxweb$SocketType = $Keys<typeof socketTypes>;
@@ -9,7 +10,10 @@ export type rxweb$FilterFunc = (task: rxweb$Task) => boolean;
 export type rxweb$SubscribeFunc = (task: rxweb$Task) => void;
 
 export type rxweb$Request = http$IncomingMessage & http$ClientRequest;
-export type rxweb$Response = http$IncomingMessage & http$ClientRequest & http$ServerResponse & Koa$Response;
+export type rxweb$Response = http$IncomingMessage &
+  http$ClientRequest &
+  http$ServerResponse &
+  Koa$Response;
 
 export class rxweb$Task {
   constructor(_request?: rxweb$Request, _response?: rxweb$Response) {
@@ -18,12 +22,15 @@ export class rxweb$Task {
   }
   request: rxweb$Request;
   response: rxweb$Response;
-  data: ?(string|Buffer|stream$Duplex|Object|Array<*>|number|bool);
+  data: ?(string | Buffer | stream$Duplex | Object | Array<*> | number | bool);
   type: string;
 }
 
 export class rxweb$Middleware {
-  constructor(_filterFunc?: rxweb$FilterFunc, _subscribeFunc?: rxweb$SubscribeFunc) {
+  constructor(
+    _filterFunc?: rxweb$FilterFunc,
+    _subscribeFunc?: rxweb$SubscribeFunc
+  ) {
     _filterFunc && (this.filterFunc = _filterFunc);
     _subscribeFunc && (this.subscribeFunc = _subscribeFunc);
   }
@@ -31,10 +38,10 @@ export class rxweb$Middleware {
   subscribeFunc: rxweb$SubscribeFunc;
 }
 
-declare module "rxweb" {
+declare module 'rxweb' {
   declare var SocketType: rxweb$SocketType;
   declare var Task: Class<rxweb$Task>;
-  declare var Middleware: Class<rxweb$Middleware>; 
+  declare var Middleware: Class<rxweb$Middleware>;
   declare var FilterFunc: rxweb$FilterFunc;
   declare var SubscribeFunc: rxweb$SubscribeFunc;
 }

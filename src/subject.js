@@ -19,6 +19,6 @@ export class rxweb$Subject {
   }
 }
 
-declare module "rxweb" {
+declare module 'rxweb' {
   declare var Subject: rxweb$Subject;
 }
