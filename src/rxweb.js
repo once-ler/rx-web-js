@@ -8,8 +8,8 @@ export const rxweb$HTTPS: rxweb$SocketType = 'HTTPS';
 export type rxweb$FilterFunc = (task: rxweb$Task) => boolean;
 export type rxweb$SubscribeFunc = (task: rxweb$Task) => void;
 
-export type rxweb$Request = http$IncomingMessage | http$ClientRequest;
-export type rxweb$Response = http$IncomingMessage | http$ClientRequest | http$ServerResponse;
+export type rxweb$Request = http$IncomingMessage & http$ClientRequest;
+export type rxweb$Response = http$IncomingMessage & http$ClientRequest & http$ServerResponse & Koa$Response;
 
 export class rxweb$Task {
   constructor(_request?: rxweb$Request, _response?: rxweb$Response) {
@@ -32,9 +32,9 @@ export class rxweb$Middleware {
 }
 
 declare module "rxweb" {
-  declare var rxweb$SocketType: rxweb$SocketType;
-  declare var rxweb$Task: Class<rxweb$Task>;
-  declare var rxweb$Middleware: Class<rxweb$Middleware>; 
-  declare var rxweb$FilterFunc: rxweb$FilterFunc;
-  declare var rxweb$SubscribeFunc: rxweb$SubscribeFunc;
+  declare var SocketType: rxweb$SocketType;
+  declare var Task: Class<rxweb$Task>;
+  declare var Middleware: Class<rxweb$Middleware>; 
+  declare var FilterFunc: rxweb$FilterFunc;
+  declare var SubscribeFunc: rxweb$SubscribeFunc;
 }

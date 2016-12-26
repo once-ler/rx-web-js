@@ -26,5 +26,5 @@ export class rxweb$Observer {
 }
 
 declare module "rxweb" {
-  declare var rxweb$Observer: rxweb$Observer;
+  declare var Observer: rxweb$Observer;
 }

@@ -1,7 +1,7 @@
 /* @flow */
 
 import {Subscription, Scheduler} from 'rxjs';
-import Subscriber from 'rxjs/Subscriber';
+import RxSubscriber from 'rxjs/Subscriber';
 import type {rxweb$Task } from './rxweb';
 
 export class rxweb$Subscriber {
@@ -10,10 +10,10 @@ export class rxweb$Subscriber {
       error?: (e?: any) => void,
       complete?: () => void
     ) {
-    return new Subscriber(value, error, complete);
+    return new RxSubscriber(value, error, complete);
   }
 }
 
 declare module "rxweb" {
-  declare var rxweb$Subscriber: rxweb$Subscriber;
+  declare var Subscriber: rxweb$Subscriber;
 }

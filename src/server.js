@@ -14,13 +14,18 @@ import {rxweb$Observer} from './observer';
 import {rxweb$Subscriber} from './subscriber';
 import {rxweb$Subject} from './subject';
 
-declare type WebAction = (_request?: rxweb$Request, _response?: rxweb$Response) => void;
+export type rxweb$WebAction = (_request?: rxweb$Request, _response?: rxweb$Response) => void;
 
-export type rxweb$Route = {
+export class rxweb$Route {
   expression: string;
   verb: string;
-  action: WebAction;
-};
+  action: rxweb$WebAction;
+  constructor(_expression: string, _verb: string, _action: rxweb$WebAction) {
+    this.expression = _expression;
+    this.verb = _verb;
+    this.action = _action;
+  }
+}
 
 export interface rxweb$IServer {
   port: number;
@@ -43,6 +48,9 @@ class rxweb$ServerBase {
   getSubject(): rxweb$Subject {
     return this.sub;
   }
+  constructor() {
+    this.sub = new rxweb$Subject();
+  }
 }
 
 export class rxweb$Server extends rxweb$ServerBase {
@@ -56,15 +64,16 @@ export class rxweb$Server extends rxweb$ServerBase {
   }
 
   applyRoutes() {
+    const router = new KoaServerRouter();
     for(let r of this.routes) {
-      KoaServerRouter[r.verb](r.expression, (ctx, next) => {
+      router[r.verb.toLowerCase()](r.expression, (ctx, next) => {
         r.action(ctx.request, ctx.response);
       });
     }
 
     this.server
-      .use(KoaServerRouter.routes())
-      .use(KoaServerRouter.allowedMethods);
+      .use(router.routes())
+      .use(router.allowedMethods);
   }
 
   start() {
@@ -79,7 +88,7 @@ export class rxweb$Server extends rxweb$ServerBase {
 
     // Start the server.
     // TODO
-    this.server.listen(_port);
+    this.server.listen(this.port);
   }
 
   makeObserversAndSubscribeFromMiddlewares() {
@@ -97,6 +106,8 @@ export class rxweb$Server extends rxweb$ServerBase {
 }
 
 declare module "rxweb" {
-  declare var rxweb$Server: rxweb$Server;
-  declare var rxweb$IServer: rxweb$IServer;
+  declare var Server: rxweb$Server;
+  declare var IServer: rxweb$IServer;
+  declare var Route: rxweb$Route;
+  declare var WebAction: rxweb$WebAction;
 }
