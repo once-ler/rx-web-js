@@ -14,10 +14,10 @@ fs.readdirSync('node_modules')
 module.exports = {
   devtool: 'cheap-module-source-map',
   // devtool: 'sourcemap',
-  entry: ['./index'],
+  entry: ['./src/index'],
   output: {
-    path: path.join(__dirname, 'dist'),
-    filename: 'mongo-dump-next.js'
+    path: path.join(__dirname, '../dist'),
+    filename: 'epic-interconnect-next.min.js'
   },
 
   progress: true,

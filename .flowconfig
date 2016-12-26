@@ -1,12 +1,10 @@
-[include]
+[ignore]
+.*/dist/.*
+.*/coverage/.*
+.*/resources/.*
+.*/node_modules/flow-bin/.*
 
 [libs]
 ./resources/interfaces
 ./node_modules/iflow-koa/index.js.flow
 ./node_modules/iflow-koa-bodyparser/index.js.flow
-
-[options]
-
-[ignore]
-.*/node_modules/flow-bin/.*
-.*/node_modules/babel*
