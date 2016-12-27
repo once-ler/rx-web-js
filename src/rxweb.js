@@ -1,5 +1,9 @@
 /* @flow */
-/* eslint no-unused-expressions: 0, flowtype/no-weak-types: 0 */
+/* eslint no-unused-expressions: 0,
+  flowtype/no-weak-types: 0,
+  flowtype/union-intersection-spacing: 0,
+  max-len: 0
+*/
 
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
 export type rxweb$SocketType = $Keys<typeof socketTypes>;
@@ -15,15 +19,24 @@ export type rxweb$Response = http$IncomingMessage &
   http$ServerResponse &
   Koa$Response;
 
+export type rxweb$Data = string|Buffer|stream$Duplex|Object|Array<*>|number|bool;
+
 export class rxweb$Task {
-  constructor(_request?: rxweb$Request, _response?: rxweb$Response) {
+  constructor(
+    _type?: string = 'INITIAL',
+    _data?: ?rxweb$Data = {},
+    _request?: rxweb$Request,
+    _response?: rxweb$Response
+  ) {
     _request && (this.request = _request);
     _response && (this.response = _response);
+    this.type = _type;
+    this.data = _data;    
   }
+  type: string;
+  data: ?rxweb$Data;
   request: rxweb$Request;
   response: rxweb$Response;
-  data: ?(string | Buffer | stream$Duplex | Object | Array<*> | number | bool);
-  type: string;
 }
 
 export class rxweb$Middleware {
