@@ -4,6 +4,7 @@
   flowtype/union-intersection-spacing: 0,
   max-len: 0
 */
+import {rxweb$Server} from './server'
 
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
 export type rxweb$SocketType = $Keys<typeof socketTypes>;
