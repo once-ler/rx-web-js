@@ -3,6 +3,7 @@
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
 import type {
+  rxweb$Task,
   rxweb$Request,
   rxweb$Response,
   rxweb$Middleware
@@ -30,11 +31,12 @@ export interface rxweb$IServer {
   sub: rxweb$Subject;
   middlewares: Array<rxweb$Middleware>;
   routes: Array<rxweb$Route>;
-  onNext: rxweb$Middleware;
+  // onNext: rxweb$Middleware;
   applyRoutes: () => void;
   getSubject: () => rxweb$Subject;
   start: () => void;
   makeObserversAndSubscribeFromMiddlewares: () => void;
+  next: (value: rxweb$Task) => void;
 }
 
 class rxweb$ServerBase {
@@ -42,9 +44,12 @@ class rxweb$ServerBase {
   sub: rxweb$Subject;
   middlewares: Array<rxweb$Middleware>;
   routes: Array<rxweb$Route>;
-  onNext: rxweb$Middleware;
+  // onNext: rxweb$Middleware;
   getSubject(): rxweb$Subject {
     return this.sub;
+  }
+  next(value: rxweb$Task): void {
+    this.sub.get().next(value);
   }
   constructor() {
     this.sub = new rxweb$Subject();
@@ -99,6 +104,8 @@ export class rxweb$Server extends rxweb$ServerBase {
       o.subscribe(m.subscribeFunc);
     }
 
+    /*
+    // Deprecate
     // Last Observer is the one that will respond to client
     // after all middlwares have been processed.
     const lastObserver: rxweb$Observer = new rxweb$Observer(
@@ -106,6 +113,7 @@ export class rxweb$Server extends rxweb$ServerBase {
       this.onNext.filterFunc
     );
     lastObserver.subscribe(this.onNext.subscribeFunc);
+    */
   }
 }
 

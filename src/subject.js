@@ -10,7 +10,7 @@ export class rxweb$Subject {
   constructor() {
     this.sub = new RxSubject();
     this.sub
-      .subscribeOn(Scheduler.queue)
+      .subscribeOn(Scheduler.asap)
       .publish();
   }
 

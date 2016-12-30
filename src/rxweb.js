@@ -4,8 +4,6 @@
   flowtype/union-intersection-spacing: 0,
   max-len: 0
 */
-import {rxweb$Server} from './server'
-
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
 export type rxweb$SocketType = $Keys<typeof socketTypes>;
 export const rxweb$HTTP: rxweb$SocketType = 'HTTP';
@@ -20,22 +18,20 @@ export type rxweb$Response = http$IncomingMessage &
   http$ServerResponse &
   Koa$Response;
 
-export type rxweb$Data = string|Buffer|stream$Duplex|Object|Array<*>|number|bool;
-
 export class rxweb$Task {
   constructor(
-    _type?: string = 'INITIAL',
-    _data?: ?rxweb$Data = {},
+    _type: string = 'INITIAL',
+    _data: any = {},
     _request?: rxweb$Request,
     _response?: rxweb$Response
   ) {
     _request && (this.request = _request);
     _response && (this.response = _response);
     this.type = _type;
-    this.data = _data;    
+    this.data = _data;
   }
   type: string;
-  data: ?rxweb$Data;
+  data: any;
   request: rxweb$Request;
   response: rxweb$Response;
 }
