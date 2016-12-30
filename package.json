@@ -17,7 +17,8 @@
     "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",
     "build:browser:umd": "cross-env BROWSER=1 webpack --config webpack/umd.config.js",
     "build:node:umd": "cross-env NODE=1 webpack --config webpack/umd.config.js",
-    "watch": "node resources/watch.js"
+    "watch": "node resources/watch.js",
+    "test:browser": "cross-env BROWSER=1 ./node_modules/.bin/babel-node test"
   },
   "keywords": [
     "rxjs",

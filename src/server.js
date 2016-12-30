@@ -1,7 +1,10 @@
 /* @flow */
-/* eslint no-unused-vars: 0 */
+/* eslint no-unused-vars: 0, max-len: 0, flowtype/no-weak-types: 0, no-unused-expressions: 0, curly: 0, no-console: 0 */
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
+import type { Store as ReduxStore, MiddlewareAPI, Middleware } from 'redux';
+// import { applyMiddleware } from 'redux';
+
 import type {
   rxweb$Task,
   rxweb$Request,
@@ -10,6 +13,11 @@ import type {
 } from './rxweb';
 import {rxweb$Observer} from './observer';
 import {rxweb$Subject} from './subject';
+
+export type Redux$State = any;
+export type Redux$Action = Object;
+export type Redux$Store = ReduxStore<Redux$State, Redux$Action>;
+export type Redux$Middleware = Middleware<Redux$State, Redux$Action>;
 
 export type rxweb$WebAction = (
   _request?: rxweb$Request,
@@ -40,10 +48,13 @@ export interface rxweb$IServer {
 }
 
 class rxweb$ServerBase {
+  server: Koa$Koa;
   port: number;
   sub: rxweb$Subject;
-  middlewares: Array<rxweb$Middleware>;
-  routes: Array<rxweb$Route>;
+  middlewares: Array<rxweb$Middleware> = [];
+  routes: Array<rxweb$Route> = [];
+  reduxMiddlewares: Array<Redux$Middleware> = [];
+  store: Redux$Store;
   // onNext: rxweb$Middleware;
   getSubject(): rxweb$Subject {
     return this.sub;
@@ -51,21 +62,41 @@ class rxweb$ServerBase {
   next(value: rxweb$Task): void {
     this.sub.get().next(value);
   }
-  constructor() {
+  constructor(_store?: Redux$Store) {
     this.sub = new rxweb$Subject();
+    _store && (this.store = _store);
   }
 }
 
 export class rxweb$Server extends rxweb$ServerBase {
-  server: Koa$Koa;
-
-  constructor(_port: number, _certFile?: string, _privateKeyFile?: string) {
-    super();
+  constructor(_port: number = 3000, _store?: Redux$Store) {
+    super(_store);
     this.port = _port;
     this.server = new KoaServer();
   }
 
+  isBrowser() {
+    return typeof window !== undefined || (process && process.env.BROWSER);
+  }
+
+  applyReduxMiddleware() {
+    // const middlewares: Array<ReduxMiddlware> = [];
+    for (const r of this.routes) {
+      const rxwebMiddleware = ({dispatch, getState}) => next => action => {
+        if (action.type !== r.expression) return next(action);
+
+        // Need to inject dispatch here.
+        r.action();
+        // Must return object
+        return next({ type: '_' });
+      };
+      this.reduxMiddlewares.push(rxwebMiddleware);
+    }
+  }
+
   applyRoutes() {
+    if (this.isBrowser()) return this.applyReduxMiddleware();
+
     const router = new KoaServerRouter();
     for (const r of this.routes) {
       router[r.verb.toLowerCase()](r.expression, (ctx, next) => {
@@ -114,6 +145,12 @@ export class rxweb$Server extends rxweb$ServerBase {
     );
     lastObserver.subscribe(this.onNext.subscribeFunc);
     */
+  }
+}
+
+export class rxweb$HttpsServer extends rxweb$Server {
+  constructor(_port: number = 3000, _store?: Redux$Store, _certFile: string, _privateKeyFile: string) {
+    super(_port, _store);
   }
 }
 
