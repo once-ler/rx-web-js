@@ -2,32 +2,33 @@
 /* eslint no-unused-vars: 0, max-len: 0, flowtype/no-weak-types: 0, no-unused-expressions: 0, curly: 0, no-console: 0 */
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
-import type { Store as ReduxStore, MiddlewareAPI, Middleware } from 'redux';
 // import { applyMiddleware } from 'redux';
-
 import type {
   rxweb$Task,
   rxweb$Request,
   rxweb$Response,
-  rxweb$Middleware
+  rxweb$Middleware,
+  rxweb$NextAction,
+  Redux$State,
+  Redux$Action,
+  Redux$Store,
+  Redux$Middleware,
+  Redux$Dispatch
 } from './rxweb';
 import {rxweb$Observer} from './observer';
 import {rxweb$Subject} from './subject';
 
-export type Redux$State = any;
-export type Redux$Action = Object;
-export type Redux$Store = ReduxStore<Redux$State, Redux$Action>;
-export type Redux$Middleware = Middleware<Redux$State, Redux$Action>;
-
 export type rxweb$WebAction = (
-  _request?: rxweb$Request,
-  _response?: rxweb$Response) => void;
+  _request: rxweb$Request,
+  _response: rxweb$Response) => void;
+
+export type rxweb$ReduxDispatch = (next: Redux$Dispatch) => void;
 
 export class rxweb$Route {
   expression: string;
   verb: string;
   action: rxweb$WebAction;
-  constructor(_expression: string, _verb: string, _action: rxweb$WebAction) {
+  constructor(_expression: string, _verb: string, _action: rxweb$WebAction | rxweb$ReduxDispatch) {
     this.expression = _expression;
     this.verb = _verb;
     this.action = _action;
@@ -35,16 +36,20 @@ export class rxweb$Route {
 }
 
 export interface rxweb$IServer {
+  server: Koa$Koa;
   port: number;
   sub: rxweb$Subject;
   middlewares: Array<rxweb$Middleware>;
   routes: Array<rxweb$Route>;
+  reduxMiddlewares: Array<Redux$Middleware>;
   // onNext: rxweb$Middleware;
   applyRoutes: () => void;
+  applyReduxMiddleware: () => void;
   getSubject: () => rxweb$Subject;
   start: () => void;
   makeObserversAndSubscribeFromMiddlewares: () => void;
-  next: (value: rxweb$Task) => void;
+  // next: (value: rxweb$Task) => void;
+  next: rxweb$NextAction;
 }
 
 class rxweb$ServerBase {
@@ -86,7 +91,7 @@ export class rxweb$Server extends rxweb$ServerBase {
         if (action.type !== r.expression) return next(action);
 
         // Need to inject dispatch here.
-        r.action();
+        r.action(next);
         // Must return object
         return next({ type: '_' });
       };
@@ -100,7 +105,7 @@ export class rxweb$Server extends rxweb$ServerBase {
     const router = new KoaServerRouter();
     for (const r of this.routes) {
       router[r.verb.toLowerCase()](r.expression, (ctx, next) => {
-        r.action(ctx.request, ctx.response);
+        r.action(ctx.request, ctx.response, this.next);
       });
     }
 

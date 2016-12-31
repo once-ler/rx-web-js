@@ -4,6 +4,16 @@
   flowtype/union-intersection-spacing: 0,
   max-len: 0
 */
+import type { Store as ReduxStore, Middleware, Dispatch } from 'redux';
+
+// Redux types
+export type Redux$State = any;
+export type Redux$Action = Object;
+export type Redux$Store = ReduxStore<Redux$State, Redux$Action>;
+export type Redux$Middleware = Middleware<Redux$State, Redux$Action>;
+export type Redux$Dispatch = Dispatch<Redux$Action>;
+
+// Enum types
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
 export type rxweb$SocketType = $Keys<typeof socketTypes>;
 export const rxweb$HTTP: rxweb$SocketType = 'HTTP';
@@ -18,15 +28,26 @@ export type rxweb$Response = http$IncomingMessage &
   http$ServerResponse &
   Koa$Response;
 
+export interface rxweb$ITask {
+  type: string;
+  data: any;
+  request?: rxweb$Request;
+  response?: rxweb$Response;
+}
+
+export type rxweb$NextAction = (value: rxweb$ITask) => mixed | Redux$Dispatch;
+
 export class rxweb$Task {
   constructor(
     _type: string = 'INITIAL',
     _data: any = {},
-    _request?: rxweb$Request,
-    _response?: rxweb$Response
+    _next?: rxweb$NextAction,
+    _request?: ?rxweb$Request,
+    _response?: ?rxweb$Response    
   ) {
     _request && (this.request = _request);
     _response && (this.response = _response);
+    _next && (this.next = _next);
     this.type = _type;
     this.data = _data;
   }
@@ -34,6 +55,7 @@ export class rxweb$Task {
   data: any;
   request: rxweb$Request;
   response: rxweb$Response;
+  next: rxweb$NextAction;
 }
 
 export class rxweb$Middleware {
