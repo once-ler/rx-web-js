@@ -2,7 +2,6 @@
 /* eslint no-unused-vars: 0, max-len: 0, flowtype/no-weak-types: 0, no-unused-expressions: 0, curly: 0, no-console: 0 */
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
-// import { applyMiddleware } from 'redux';
 import type {
   rxweb$Task,
   rxweb$Request,
@@ -12,43 +11,39 @@ import type {
   Redux$State,
   Redux$Action,
   Redux$Store,
-  Redux$Middleware
+  Redux$Middleware,
+  Redux$Dispatch
 } from './rxweb';
 import {rxweb$Observer} from './observer';
 import {rxweb$Subject} from './subject';
 
 export type rxweb$WebAction = (
   _next: rxweb$NextAction,
-  _request?: rxweb$Request,
-  _response?: rxweb$Response
-  ) => void;
+  _request: rxweb$Request,
+  _response: rxweb$Response
+) => void;
+
+export type rxweb$BrowserAction = (
+  _next: rxweb$NextAction,
+  _dispatch: Redux$Dispatch,
+  _reduxAction: Redux$Action
+) => void;
 
 export class rxweb$Route {
   expression: string;
   verb: string;
-  action: rxweb$WebAction;
-  constructor(_expression: string, _verb: string, _action: rxweb$WebAction) {
-    this.expression = _expression;
-    this.verb = _verb;
-    this.action = _action;
-  }
-}
+  action: rxweb$WebAction & rxweb$BrowserAction;
+  constructor(...params: any[]) {
+    const [ arg0, arg1, arg2 ] = params;
+    this.expression = arg0;
 
-export interface rxweb$IServer {
-  server: Koa$Koa;
-  port: number;
-  sub: rxweb$Subject;
-  middlewares: Array<rxweb$Middleware>;
-  routes: Array<rxweb$Route>;
-  reduxMiddlewares: Array<Redux$Middleware>;
-  // onNext: rxweb$Middleware;
-  applyRoutes: () => void;
-  applyReduxMiddleware: () => void;
-  getSubject: () => rxweb$Subject;
-  start: () => void;
-  makeObserversAndSubscribeFromMiddlewares: () => void;
-  // next: (value: rxweb$Task) => void;
-  next: rxweb$NextAction;
+    if (typeof arg1 === 'function') {
+      this.action = arg1;
+    } else {
+      this.verb = arg1;
+      this.action = arg2;
+    }
+  }
 }
 
 class rxweb$ServerBase {
@@ -59,23 +54,27 @@ class rxweb$ServerBase {
   routes: Array<rxweb$Route> = [];
   reduxMiddlewares: Array<Redux$Middleware> = [];
   store: Redux$Store;
-  // onNext: rxweb$Middleware;
   getSubject(): rxweb$Subject {
     return this.sub;
   }
   next(value: rxweb$Task): void {
     this.sub.get().next(value);
   }
-  constructor(_store?: Redux$Store) {
+  constructor() {
     this.sub = new rxweb$Subject();
-    _store && (this.store = _store);
+
+    // https://github.com/facebook/flow/issues/1397
+    (this: any).next = this.next.bind(this);
+    (this: any).getSubject = this.getSubject.bind(this);
   }
 }
 
 export class rxweb$Server extends rxweb$ServerBase {
-  constructor(_port: number = 3000, _store?: Redux$Store) {
-    super(_store);
-    this.port = _port;
+  constructor(_port?: number = 3000) {
+    super();
+    if (this.isBrowser()) return;
+
+    _port && (this.port = _port);
     this.server = new KoaServer();
   }
 
@@ -84,15 +83,13 @@ export class rxweb$Server extends rxweb$ServerBase {
   }
 
   applyReduxMiddleware() {
-    // const middlewares: Array<ReduxMiddlware> = [];
     for (const r of this.routes) {
-      const rxwebMiddleware = ({dispatch, getState}) => next => action => {
-        if (action.type !== r.expression) return next(action);
-
-        // Need to inject dispatch here.
-        r.action(next);
-        // Must return object
-        return next({ type: '_' });
+      const rxwebMiddleware = ({dispatch, getState}) => reduxNext => action => {
+        if (action.type !== r.expression) return reduxNext(action);
+        // Need to inject dispatch (reduxNext) here.
+        r.action(this.next, reduxNext, action);
+        // Must return object because inside Redux.
+        return reduxNext({ type: '_' });
       };
       this.reduxMiddlewares.push(rxwebMiddleware);
     }
@@ -103,7 +100,7 @@ export class rxweb$Server extends rxweb$ServerBase {
 
     const router = new KoaServerRouter();
     for (const r of this.routes) {
-      router[r.verb.toLowerCase()](r.expression, (ctx) => {
+      router[r.verb.toLowerCase()](r.expression, ctx => {
         r.action(this.next, ctx.request, ctx.response);
       });
     }
@@ -118,13 +115,13 @@ export class rxweb$Server extends rxweb$ServerBase {
     // each observer will act or ignore any incoming web request.
     this.makeObserversAndSubscribeFromMiddlewares();
 
-    // Defaults: 1 endpoint for POST/GET
-    // TODO
     // Apply user-defined routes
     this.applyRoutes();
 
+    // Exit if inside browser
+    if (this.isBrowser()) return;
+
     // Start the server.
-    // TODO
     this.server.listen(this.port);
   }
 
@@ -138,17 +135,6 @@ export class rxweb$Server extends rxweb$ServerBase {
       );
       o.subscribe(m.subscribeFunc);
     }
-
-    /*
-    // Deprecate
-    // Last Observer is the one that will respond to client
-    // after all middlwares have been processed.
-    const lastObserver: rxweb$Observer = new rxweb$Observer(
-      this.sub.get().asObservable(),
-      this.onNext.filterFunc
-    );
-    lastObserver.subscribe(this.onNext.subscribeFunc);
-    */
   }
 }
 
@@ -160,7 +146,6 @@ export class rxweb$HttpsServer extends rxweb$Server {
 
 declare module 'rxweb' {
   declare var Server: rxweb$Server;
-  declare var IServer: rxweb$IServer;
   declare var Route: rxweb$Route;
   declare var WebAction: rxweb$WebAction;
 }

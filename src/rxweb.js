@@ -4,14 +4,15 @@
   flowtype/union-intersection-spacing: 0,
   max-len: 0
 */
-import type { Store as ReduxStore, Middleware, Dispatch } from 'redux';
+import type { Store as ReduxStore, Middleware as ReduxMiddleware, Dispatch } from 'redux';
+import isPlainObject from 'lodash/isPlainObject';
 
 // Redux types
 export type Redux$State = any;
 export type Redux$Action = Object;
 export type Redux$Store = ReduxStore<Redux$State, Redux$Action>;
-export type Redux$Middleware = Middleware<Redux$State, Redux$Action>;
-// export type Redux$Dispatch = Dispatch<Redux$Action>;
+export type Redux$Middleware = ReduxMiddleware<Redux$State, Redux$Action>;
+export type Redux$Dispatch = Dispatch<Redux$Action>;
 
 // Enum types
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
@@ -33,24 +34,23 @@ export type rxweb$Response = http$IncomingMessage &
 export type rxweb$NextAction = (value: Object) => mixed;
 
 export class rxweb$Task {
-  constructor(
-    _type: string = 'INITIAL',
-    _data: any = {},
-    _next?: rxweb$NextAction,
-    _request?: ?rxweb$Request,
-    _response?: ?rxweb$Response    
-  ) {
-    _request && (this.request = _request);
-    _response && (this.response = _response);
-    _next && (this.next = _next);
-    this.type = _type;
-    this.data = _data;
+  constructor(...params: any[]) {
+    const [ arg0, arg1, arg2, arg3, arg4 ] = params;
+    this.type = arg0;
+    this.data = arg1;
+    arg2 && (this.next = arg2);
+    arg3 && (typeof arg3 === 'function') && (this.dispatch = arg3);
+    arg3 && (typeof arg3 === 'object') && (this.request = arg3);
+    arg4 && isPlainObject(arg4) && (this.action = arg4);
+    arg4 && !isPlainObject(arg4) && (this.response = arg4);
   }
   type: string;
   data: any;
+  next: rxweb$NextAction;
   request: rxweb$Request;
   response: rxweb$Response;
-  next: rxweb$NextAction;
+  dispatch: Redux$Dispatch;
+  action: Redux$Action;
 }
 
 export class rxweb$Middleware {
