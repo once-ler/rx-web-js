@@ -12,23 +12,22 @@ import type {
   Redux$State,
   Redux$Action,
   Redux$Store,
-  Redux$Middleware,
-  Redux$Dispatch
+  Redux$Middleware
 } from './rxweb';
 import {rxweb$Observer} from './observer';
 import {rxweb$Subject} from './subject';
 
 export type rxweb$WebAction = (
-  _request: rxweb$Request,
-  _response: rxweb$Response) => void;
-
-export type rxweb$ReduxDispatch = (next: Redux$Dispatch) => void;
+  _next: rxweb$NextAction,
+  _request?: rxweb$Request,
+  _response?: rxweb$Response
+  ) => void;
 
 export class rxweb$Route {
   expression: string;
   verb: string;
   action: rxweb$WebAction;
-  constructor(_expression: string, _verb: string, _action: rxweb$WebAction | rxweb$ReduxDispatch) {
+  constructor(_expression: string, _verb: string, _action: rxweb$WebAction) {
     this.expression = _expression;
     this.verb = _verb;
     this.action = _action;
@@ -104,8 +103,8 @@ export class rxweb$Server extends rxweb$ServerBase {
 
     const router = new KoaServerRouter();
     for (const r of this.routes) {
-      router[r.verb.toLowerCase()](r.expression, (ctx, next) => {
-        r.action(ctx.request, ctx.response, this.next);
+      router[r.verb.toLowerCase()](r.expression, (ctx) => {
+        r.action(this.next, ctx.request, ctx.response);
       });
     }
 

@@ -11,7 +11,7 @@ export type Redux$State = any;
 export type Redux$Action = Object;
 export type Redux$Store = ReduxStore<Redux$State, Redux$Action>;
 export type Redux$Middleware = Middleware<Redux$State, Redux$Action>;
-export type Redux$Dispatch = Dispatch<Redux$Action>;
+// export type Redux$Dispatch = Dispatch<Redux$Action>;
 
 // Enum types
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
@@ -22,20 +22,15 @@ export const rxweb$HTTPS: rxweb$SocketType = 'HTTPS';
 export type rxweb$FilterFunc = (task: rxweb$Task) => boolean;
 export type rxweb$SubscribeFunc = (task: rxweb$Task) => void;
 
+// Web server types
 export type rxweb$Request = http$IncomingMessage & http$ClientRequest;
 export type rxweb$Response = http$IncomingMessage &
   http$ClientRequest &
   http$ServerResponse &
   Koa$Response;
 
-export interface rxweb$ITask {
-  type: string;
-  data: any;
-  request?: rxweb$Request;
-  response?: rxweb$Response;
-}
-
-export type rxweb$NextAction = (value: rxweb$ITask) => mixed | Redux$Dispatch;
+// rxjs Subject.next | Redux dispatch
+export type rxweb$NextAction = (value: Object) => mixed;
 
 export class rxweb$Task {
   constructor(
