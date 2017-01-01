@@ -21,7 +21,15 @@ export class rxweb$Observer {
     onError: ?(error: any) => mixed,
     onCompleted: ?() => mixed
   ) {
-    this._observer.subscribe(onNext, onError, onCompleted);
+    this._observer
+      .mergeMap(task =>
+        task.hasOwnProperty('response') ?
+        Observable.of(task) :
+        new Promise(resolve =>
+          setTimeout(() => resolve(task), Math.random() * 30)
+        )
+      )
+      .subscribe(onNext, onError, onCompleted);
   }
 }
 
