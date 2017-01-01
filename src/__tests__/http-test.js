@@ -1,4 +1,3 @@
-/* @flow */
 /**
  *  Copyright (c) 2015, Facebook, Inc.
  *  All rights reserved.
@@ -10,7 +9,7 @@
 
 // 80+ char lines are useful in describe/it, so ignore in this file.
 /* eslint-disable max-len */
-import request from 'supertest-as-promised';
+import request from 'supertest';
 import { describe, it } from 'mocha';
 import should from 'should';
 
@@ -42,7 +41,7 @@ describe('test harness', () => {
   it('resolves callback promises', async () => {
     const resolveValue = {};
     const result = await promiseTo(cb => cb(null, resolveValue));
-    expect(result).to.equal(resolveValue);
+    result.should.be.equal(resolveValue);
   });
 
   it('rejects callback promises with errors', async () => {
@@ -53,17 +52,35 @@ describe('test harness', () => {
     } catch (error) {
       caught = error;
     }
-    expect(caught).to.equal(rejectError);
+    caught.should.be.equal(rejectError);
   });
 
 });
 
-decribe('can create koa server', () => {
+describe('can create http server', () => {
 
-  it('resolves to an instance of rxweb$Server', () =>{
-    const server = new rxweb$Server(3000);
+  const app = new rxweb$Server(3000);
 
-    server.should.be.an.instanceOf(Object);
+  it('resolves to an instance of rxweb$Server', () => {    
+    app.should.be.an.instanceOf(rxweb$Server);
+  });
+
+  it('has required properties', () => {
+    app.should.have.properties('getServer', 'middlewares', 'routes', 'sub', 'next', 'getSubject');
+  });
+
+});
+
+describe('client can connect', () => {
+
+  it('allows GET with variable values', async () => {
+    const app = new rxweb$Server(3000);
+    app.start();
+
+    const response = await request(app.getServer())
+      .get('/');
+
+    response.text.should.equal('Not Found');
   });
 
 });

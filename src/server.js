@@ -54,6 +54,10 @@ class rxweb$ServerBase {
   routes: Array<rxweb$Route> = [];
   reduxMiddlewares: Array<Redux$Middleware> = [];
   store: Redux$Store;
+  listener: events$EventEmitter;
+  getServer(): events$EventEmitter {
+    return this.listener;
+  }
   getSubject(): rxweb$Subject {
     return this.sub;
   }
@@ -66,6 +70,7 @@ class rxweb$ServerBase {
     // https://github.com/facebook/flow/issues/1397
     (this: any).next = this.next.bind(this);
     (this: any).getSubject = this.getSubject.bind(this);
+    (this: any).getServer = this.getServer.bind(this);
   }
 }
 
@@ -79,7 +84,7 @@ export class rxweb$Server extends rxweb$ServerBase {
   }
 
   isBrowser() {
-    return typeof window !== undefined || (process && process.env.BROWSER);
+    return typeof window !== 'undefined' || (process && process.env.BROWSER);
   }
 
   applyReduxMiddleware() {
@@ -122,7 +127,10 @@ export class rxweb$Server extends rxweb$ServerBase {
     if (this.isBrowser()) return;
 
     // Start the server.
-    this.server.listen(this.port);
+    this.listener = this.server.listen(this.port);
+    if (!process.env.NODE_ENV || !process.env.NODE_ENV.production) {
+      console.log(`Listening on port ${this.port}`);
+    }
   }
 
   makeObserversAndSubscribeFromMiddlewares() {
