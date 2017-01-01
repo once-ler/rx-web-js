@@ -65,6 +65,12 @@ export class rxweb$Middleware {
   subscribeFunc: rxweb$SubscribeFunc;
 }
 
+// re-export rxweb$Subject
+export { rxweb$Subject } from './subject';
+
+// re-export rxweb$Server
+export { rxweb$Server, rxweb$Route } from './server';
+
 declare module 'rxweb' {
   declare var SocketType: rxweb$SocketType;
   declare var Task: Class<rxweb$Task>;
