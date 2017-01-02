@@ -29,6 +29,7 @@ export type rxweb$Response = http$IncomingMessage &
   http$ClientRequest &
   http$ServerResponse &
   Koa$Response;
+export type rxweb$SocketServer = net$Server | tls$Server;
 
 // rxjs Subject.next | Redux dispatch
 export type rxweb$NextAction = (value: Object) => mixed;

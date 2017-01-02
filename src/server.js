@@ -7,6 +7,7 @@ import type {
   rxweb$Task,
   rxweb$Request,
   rxweb$Response,
+  rxweb$SocketServer,
   rxweb$Middleware,
   rxweb$NextAction,
   Redux$State,
@@ -55,8 +56,8 @@ class rxweb$ServerBase {
   routes: Array<rxweb$Route> = [];
   reduxMiddlewares: Array<Redux$Middleware> = [];
   store: Redux$Store;
-  listener: events$EventEmitter;
-  getServer(): events$EventEmitter {
+  listener: rxweb$SocketServer;
+  getServer(): rxweb$SocketServer {
     return this.listener;
   }
   getSubject(): rxweb$Subject {
@@ -134,6 +135,10 @@ export class rxweb$Server extends rxweb$ServerBase {
     if (!process.env.NODE_ENV || !process.env.NODE_ENV.production) {
       console.log(`Listening on port ${this.port}`);
     }
+  }
+
+  stop(callback?: Function) {
+    this.listener && (this.listener.close(callback));
   }
 
   makeObserversAndSubscribeFromMiddlewares() {

@@ -75,24 +75,24 @@ describe('client can connect', () => {
     response.text.should.equal('Not Found');
   });
 
-  after(function(done) {
-    app.getServer().close(done);
+  after(function (done) {
+    app.stop(done);
   });
 
 });
 
 describe('test routes and middlewares', () => {
 
+  let app;
+
   it('server recognizes routes', async () => {
-    const app = new rxweb$Server(3000);
+    app = new rxweb$Server(3000);
 
     app.routes = [
       new rxweb$Route(
         '/foo',
         'POST',
         (next, req, res) => {
-          throw new Error(req.body)
-          
           res.body = { requestBody: req.body, path: 'foo' };
         }
       ),
@@ -126,6 +126,10 @@ describe('test routes and middlewares', () => {
     const resp1 = JSON.parse(response1.text);
     resp1.should.have.propertyByPath('requestBody', 'test').equal('foo');
     resp1.should.have.property('path').equal('bar');
+  });
+
+  after(function (done) {
+    app.stop(done);
   });
 
 });
