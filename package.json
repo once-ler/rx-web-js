@@ -1,6 +1,6 @@
 {
   "name": "rx-web-js",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
   "directories": {
@@ -30,6 +30,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "koa": "^2.0.0-alpha.7",
+    "koa-bodyparser": "^3.2.0",
     "koa-router": "^7.0.1",
     "lodash": "^4.17.3",
     "redux": "^3.6.0",

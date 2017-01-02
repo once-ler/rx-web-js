@@ -2,6 +2,7 @@
 /* eslint no-unused-vars: 0, max-len: 0, flowtype/no-weak-types: 0, no-unused-expressions: 0, curly: 0, no-console: 0 */
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
+import KoaServerBodyParser from 'koa-bodyparser';
 import type {
   rxweb$Task,
   rxweb$Request,
@@ -102,6 +103,8 @@ export class rxweb$Server extends rxweb$ServerBase {
 
   applyRoutes() {
     if (this.isBrowser()) return this.applyReduxMiddleware();
+
+    this.server.use(KoaServerBodyParser());
 
     const router = new KoaServerRouter();
     for (const r of this.routes) {

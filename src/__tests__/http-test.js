@@ -1,13 +1,3 @@
-/**
- *  Copyright (c) 2015, Facebook, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant
- *  of patent rights can be found in the PATENTS file in the same directory.
- */
-
-// 80+ char lines are useful in describe/it, so ignore in this file.
 /* eslint-disable max-len */
 import request from 'supertest';
 import { describe, it } from 'mocha';
@@ -73,14 +63,69 @@ describe('can create http server', () => {
 
 describe('client can connect', () => {
 
-  it('allows GET with variable values', async () => {
-    const app = new rxweb$Server(3000);
+  let app;
+
+  it('get a response from the server', async () => {
+    app = new rxweb$Server(3000);
     app.start();
 
     const response = await request(app.getServer())
       .get('/');
 
     response.text.should.equal('Not Found');
+  });
+
+  after(function(done) {
+    app.getServer().close(done);
+  });
+
+});
+
+describe('test routes and middlewares', () => {
+
+  it('server recognizes routes', async () => {
+    const app = new rxweb$Server(3000);
+
+    app.routes = [
+      new rxweb$Route(
+        '/foo',
+        'POST',
+        (next, req, res) => {
+          throw new Error(req.body)
+          
+          res.body = { requestBody: req.body, path: 'foo' };
+        }
+      ),
+      new rxweb$Route(
+        '/bar',
+        'POST',
+        (next, req, res) => {
+          res.body = { requestBody: req.body, path: 'bar' };
+        }
+      )
+    ];
+
+    app.start();
+
+    // POST /foo
+    const response = await request(app.getServer())
+      .post('/foo')
+      .send({ test: 'bar' });
+
+    response.status.should.equal(200);
+    const resp = JSON.parse(response.text);
+    resp.should.have.propertyByPath('requestBody', 'test').equal('bar');
+    resp.should.have.property('path').equal('foo');
+
+    // POST /bar
+    const response1 = await request(app.getServer())
+      .post('/bar')
+      .send({ test: 'foo' });
+
+    response1.status.should.equal(200);
+    const resp1 = JSON.parse(response1.text);
+    resp1.should.have.propertyByPath('requestBody', 'test').equal('foo');
+    resp1.should.have.property('path').equal('bar');
   });
 
 });
