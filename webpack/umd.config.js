@@ -1,19 +1,30 @@
+var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var BASE_DIR = process.cwd();
-var COMPONENT_FILE = 'rx-web';
+var COMPONENT_FILE = 'rx-web.umd';
 var COMPONENT_NAME = 'RxWeb';
 var plugins = [];
+
+var nodeModules = {};
+fs.readdirSync('node_modules')
+  .filter(function(x) {
+    return ['.bin'].indexOf(x) === -1;
+  })
+  .forEach(function(mod) {
+    nodeModules[mod] = 'commonjs ' + mod;
+  });
 
 function getPackageMain() {
   return require(path.resolve(BASE_DIR, 'package.json')).main;
 }
 
+plugins.push(
+  new webpack.optimize.UglifyJsPlugin()
+);
+
 if (process.env.BROWSER) {
-  plugins.push(
-    new webpack.optimize.UglifyJsPlugin()
-  );
-  COMPONENT_FILE += '.min';
+  COMPONENT_FILE += '.browser.min';
   plugins.push(
     new webpack.DefinePlugin({
       'process.env': {
@@ -22,13 +33,15 @@ if (process.env.BROWSER) {
       }
     })
   );
+} else {
+  COMPONENT_FILE += '.min';
 }
 
 var config = {
   devtool: 'cheap-module-source-map',
   entry: ["babel-polyfill", path.resolve(BASE_DIR, getPackageMain())],
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, '/../dist'),
     publicPath: 'dist/',
     filename: COMPONENT_FILE + '.js',
     sourceMapFilename: COMPONENT_FILE + '.map',
@@ -46,6 +59,8 @@ var config = {
   resolve: {
     extensions: ['', '.js', '.jsx', '.css'],
   },
+  externals: nodeModules
+  /*
   externals: {
     'react': {
       root: 'React',
@@ -53,7 +68,8 @@ var config = {
       commonjs: 'react',
       amd: 'react',
     },
-  },
+  }
+  */
 };
 
 if (!process.env.BROWSER) {

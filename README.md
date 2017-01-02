@@ -6,6 +6,7 @@ rx-web-js
 ####Features
 + Run rxjs v5 with [koa v2](https://github.com/koajs/koa/tree/v2.x) server side.
 + Run rxjs v5 with [redux](https://github.com/reactjs/redux) browser side.
++ Middleware implemented as observables.
 
 __The implementation in C++11 is [rx-web-cpp](https://github.com/once-ler/rx-web-cpp)__
 

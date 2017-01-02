@@ -4,14 +4,16 @@
   flowtype/union-intersection-spacing: 0,
   max-len: 0
 */
-import type { Store as ReduxStore, Middleware as ReduxMiddleware, Dispatch } from 'redux';
+import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch } from 'redux';
 import isPlainObject from 'lodash/isPlainObject';
+import { rxweb$Subject } from './subject';
+import { rxweb$Server, rxweb$Route } from './server';
 
 // Redux types
 export type Redux$State = any;
 export type Redux$Action = Object;
-export type Redux$Store = ReduxStore<Redux$State, Redux$Action>;
-export type Redux$Middleware = ReduxMiddleware<Redux$State, Redux$Action>;
+export type Redux$Store = RdxStore<Redux$State, Redux$Action>;
+export type Redux$Middleware = RdxMiddleware<Redux$State, Redux$Action>;
 export type Redux$Dispatch = Dispatch<Redux$Action>;
 
 // Enum types
@@ -73,9 +75,18 @@ export { rxweb$Subject } from './subject';
 export { rxweb$Server, rxweb$Route } from './server';
 
 declare module 'rxweb' {
-  declare var SocketType: rxweb$SocketType;
-  declare var Task: Class<rxweb$Task>;
-  declare var Middleware: Class<rxweb$Middleware>;
   declare var FilterFunc: rxweb$FilterFunc;
   declare var SubscribeFunc: rxweb$SubscribeFunc;
+  declare var Middleware: Class<rxweb$Middleware>;
+  declare var SocketType: rxweb$SocketType;
+  declare var SocketServer: rxweb$SocketServer;
+  declare var Task: Class<rxweb$Task>;
+  declare var Server: rxweb$Server;
+  declare var Subject: rxweb$Subject;
+  declare var Route: rxweb$Route;
+  declare var ReduxStore: Redux$Store;
+  declare var ReduxState: Redux$State;
+  declare var ReduxAction: Redux$Action;
+  declare var ReduxDispatch: Redux$Dispatch;
+  declare var ReduxMiddleware: Redux$Middleware;
 }

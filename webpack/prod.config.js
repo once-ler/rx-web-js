@@ -17,7 +17,7 @@ module.exports = {
   entry: ['./src/index'],
   output: {
     path: path.join(__dirname, '../dist'),
-    filename: 'epic-interconnect-next.min.js'
+    filename: 'rx-web.min.js'
   },
 
   progress: true,
