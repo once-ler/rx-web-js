@@ -2,6 +2,5 @@
 node_modules
 npm-debug.log
 *.db
-dist/
 flow-typed/
 test.js

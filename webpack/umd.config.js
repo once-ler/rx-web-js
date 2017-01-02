@@ -39,7 +39,7 @@ if (process.env.BROWSER) {
 
 var config = {
   devtool: 'cheap-module-source-map',
-  entry: ["babel-polyfill", path.resolve(BASE_DIR, getPackageMain())],
+  entry: ["babel-polyfill", path.resolve(BASE_DIR, 'src/index.js')],
   output: {
     path: path.join(__dirname, '/../dist'),
     publicPath: 'dist/',
