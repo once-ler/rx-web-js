@@ -9,11 +9,12 @@
   "scripts": {
     "build": "rm -rf dist/* npm run lint && babel src --ignore __tests__ --out-dir dist",
     "build:umd": "webpack --config webpack/umd.config.js",
+    "check": "flow check",
+    "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",    
     "lint": "eslint src",
+    "postinstall": "flow-typed install",
     "test": "npm run check && npm run build && npm run testonly",
     "testonly": "mocha --require resources/mocha-bootload src/**/__tests__/**/*.js",
-    "check": "flow check",
-    "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",
     "watch": "node resources/watch.js",
     "test:browser": "cross-env BROWSER=1 ./node_modules/.bin/babel-node test"
   },
