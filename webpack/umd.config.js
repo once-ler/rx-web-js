@@ -2,7 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var BASE_DIR = process.cwd();
-var COMPONENT_FILE = 'rx-web.umd';
+var COMPONENT_FILE = 'rx-web';
 var COMPONENT_NAME = 'RxWeb';
 var plugins = [];
 
@@ -23,19 +23,14 @@ plugins.push(
   new webpack.optimize.UglifyJsPlugin()
 );
 
-if (process.env.BROWSER) {
-  COMPONENT_FILE += '.browser.min';
-  plugins.push(
-    new webpack.DefinePlugin({
-      'process.env': {
-        'NODE_ENV': JSON.stringify('production'),
-        'BROWSER': 1
-      }
-    })
-  );
-} else {
-  COMPONENT_FILE += '.min';
-}
+COMPONENT_FILE += '.min';
+plugins.push(
+  new webpack.DefinePlugin({
+    'process.env': {
+      'NODE_ENV': JSON.stringify('production')
+    }
+  })
+);
 
 var config = {
   devtool: 'cheap-module-source-map',
@@ -59,26 +54,14 @@ var config = {
   resolve: {
     extensions: ['', '.js', '.jsx', '.css'],
   },
-  externals: nodeModules
-  /*
-  externals: {
-    'react': {
-      root: 'React',
-      commonjs2: 'react',
-      commonjs: 'react',
-      amd: 'react',
-    },
-  }
-  */
+  externals: nodeModules  
 };
 
-if (!process.env.BROWSER) {
-  config.target = 'node';
-  config.resolve.modulesDirectories = [ 'node_modules' ];
-  config.node = {
-    __dirname: false,
-    __dirname: false
-  };
-}
+config.target = 'node';
+config.resolve.modulesDirectories = [ 'node_modules' ];
+config.node = {
+  __dirname: false,
+  __dirname: false
+};
 
 module.exports = config;
