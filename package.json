@@ -10,7 +10,7 @@
     "build": "rm -rf dist/* npm run lint && babel src --ignore __tests__ --out-dir dist",
     "build:umd": "webpack --config webpack/umd.config.js",
     "check": "flow check",
-    "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",    
+    "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",
     "lint": "eslint src",
     "postinstall": "flow-typed install",
     "test": "npm run check && npm run build && npm run testonly",
@@ -38,6 +38,7 @@
   "devDependencies": {
     "babel-cli": "6.18.0",
     "babel-eslint": "7.1.1",
+    "babel-loader": "^6.2.10",
     "babel-plugin-transform-async-to-generator": "6.16.0",
     "babel-plugin-transform-class-properties": "6.19.0",
     "babel-plugin-transform-flow-strip-types": "^6.21.0",
