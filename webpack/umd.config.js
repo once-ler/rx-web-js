@@ -45,7 +45,7 @@ var config = {
   },
   module: {
     loaders: [
-      { test: /\.(js|jsx)/, exclude: /node_modules/, loader: 'babel'},
+      { test: /\.(js|jsx)/, exclude: 'node_modules', loader: 'babel'},
       { test: /\.css$/, loader: 'style-loader!css-loader'},
       { test: /\.json$/, loaders: ['json'] }
     ],
@@ -60,7 +60,6 @@ var config = {
 config.target = 'node';
 config.resolve.modulesDirectories = [ 'node_modules' ];
 config.node = {
-  __dirname: false,
   __dirname: false
 };
 
