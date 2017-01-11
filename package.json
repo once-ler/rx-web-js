@@ -12,7 +12,6 @@
     "check": "flow check",
     "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",
     "lint": "eslint src",
-    "postinstall": "flow-typed install",
     "test": "npm run check && npm run build && npm run testonly",
     "testonly": "mocha --require resources/mocha-bootload src/**/__tests__/**/*.js",
     "watch": "node resources/watch.js",
