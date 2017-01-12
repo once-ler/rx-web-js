@@ -17,7 +17,8 @@ export {
   rxweb$Middleware as Middleware,
   rxweb$Route as Route,
   rxweb$Subject as Subject,
-  rxweb$Server as Server,
-  rxweb$Client as Client,
   rxweb$Task as Task
 } from './rxweb';
+
+export { rxweb$Server as Server } from './server';
+export { rxweb$Client as Client } from './client';

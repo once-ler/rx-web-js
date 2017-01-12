@@ -37,8 +37,7 @@ export class rxweb$Server extends rxweb$Base {
     const router = new KoaServerRouter();
     for (const r of this.routes) {
       router[r.verb.toLowerCase()](r.expression, ctx => {
-        // r.action(this.next, ctx.request, ctx.response);
-        r.action(this.next, ctx);
+        r.action(this.next, ctx.request, ctx.response);
       });
     }
 
@@ -72,6 +71,22 @@ export class rxweb$HttpsServer extends rxweb$Server {
     super(_port);
   }
 }
+
+// flow types
+export {
+  rxweb$FilterFunc as FilterFunc,
+  rxweb$SubscribeFunc as SubscribeFunc,
+  rxweb$SocketType as SocketType,
+  rxweb$SocketServer as SocketServer
+} from './rxweb';
+
+export {
+  rxweb$Middleware as Middleware,
+  rxweb$Route as Route,
+  rxweb$Subject as Subject,
+  rxweb$Server as Server,
+  rxweb$Task as Task
+} from './rxweb';
 
 declare module 'rxweb' {
   declare var Server: rxweb$Server;

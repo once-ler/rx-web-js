@@ -2,7 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
 var BASE_DIR = process.cwd();
-var COMPONENT_FILE = 'rx-web';
+var COMPONENT_FILE = 'rx-web.node';
 var COMPONENT_NAME = 'RxWeb';
 var plugins = [];
 
@@ -34,14 +34,14 @@ plugins.push(
 
 var config = {
   devtool: 'cheap-module-source-map',
-  entry: ["babel-polyfill", path.resolve(BASE_DIR, 'src/client.js')],
+  entry: ["babel-polyfill", path.resolve(BASE_DIR, 'src/server.js')],
   output: {
     path: path.join(__dirname, '/../dist'),
     publicPath: 'dist/',
     filename: COMPONENT_FILE + '.js',
     sourceMapFilename: COMPONENT_FILE + '.map',
     library: COMPONENT_NAME,
-    libraryTarget: 'var' // browser <script></script>
+    libraryTarget: 'umd',
   },
   module: {
     loaders: [
@@ -55,6 +55,12 @@ var config = {
     extensions: ['', '.js', '.jsx', '.css'],
   },
   externals: nodeModules  
+};
+
+config.target = 'node';
+config.resolve.modulesDirectories = [ 'node_modules' ];
+config.node = {
+  __dirname: false
 };
 
 module.exports = config;

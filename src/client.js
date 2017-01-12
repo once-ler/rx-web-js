@@ -26,7 +26,7 @@ export class rxweb$Client extends rxweb$Base {
       const rxwebMiddleware = ({dispatch, getState}) => reduxNext => action => {
         if (action.type !== r.expression) return reduxNext(action);
         // Need to inject dispatch (reduxNext) here.
-        r.action(this.next, reduxNext, action);
+        r.action(this.next, reduxNext, action, getState);
         // Must return object because inside Redux.
         return reduxNext({ type: '_' });
       };
@@ -47,7 +47,25 @@ export class rxweb$Client extends rxweb$Base {
   }
 }
 
+// flow types
+export {
+  rxweb$FilterFunc as FilterFunc,
+  rxweb$SubscribeFunc as SubscribeFunc,
+  Redux$Action as ReduxAction,
+  Redux$Dispatch as ReduxDispatch,
+  Redux$Middleware as ReduxMiddleware,
+  Redux$Store as ReduxStore,
+  Redux$State as ReduxState
+} from './rxweb';
+
+export {
+  rxweb$Middleware as Middleware,
+  rxweb$Route as Route,
+  rxweb$Subject as Subject,
+  rxweb$Client as Client,
+  rxweb$Task as Task
+} from './rxweb';
+
 declare module 'rxweb' {
   declare var Client: rxweb$Client;
 }
-

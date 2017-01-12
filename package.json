@@ -9,6 +9,7 @@
   "scripts": {
     "build": "rm -rf dist/* npm run lint && babel src --ignore __tests__ --out-dir dist",
     "build:umd": "webpack --config webpack/umd.config.js",
+    "build:umd:node": "webpack --config webpack/umd.node.config.js",
     "check": "flow check",
     "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",
     "lint": "eslint src",
