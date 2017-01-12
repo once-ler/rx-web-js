@@ -9,108 +9,36 @@ import type {
   rxweb$Response,
   rxweb$SocketServer,
   rxweb$Middleware,
-  rxweb$NextAction,
-  Redux$State,
-  Redux$Action,
-  Redux$Store,
-  Redux$Middleware,
-  Redux$Dispatch
+  rxweb$NextAction
 } from './rxweb';
-import {rxweb$Observer} from './observer';
-import {rxweb$Subject} from './subject';
+import { rxweb$Base } from './base';
 
-export type rxweb$WebAction = (
-  _next: rxweb$NextAction,
-  _request: rxweb$Request,
-  _response: rxweb$Response
-) => void;
-
-export type rxweb$BrowserAction = (
-  _next: rxweb$NextAction,
-  _dispatch: Redux$Dispatch,
-  _reduxAction: Redux$Action
-) => void;
-
-export class rxweb$Route {
-  expression: string;
-  verb: string;
-  action: rxweb$WebAction & rxweb$BrowserAction;
-  constructor(...params: any[]) {
-    const [ arg0, arg1, arg2 ] = params;
-    this.expression = arg0;
-
-    if (typeof arg1 === 'function') {
-      this.action = arg1;
-    } else {
-      this.verb = arg1;
-      this.action = arg2;
-    }
-  }
-}
-
-class rxweb$ServerBase {
+export class rxweb$Server extends rxweb$Base {
   server: Koa$Koa;
   port: number;
-  sub: rxweb$Subject;
-  middlewares: Array<rxweb$Middleware> = [];
-  routes: Array<rxweb$Route> = [];
-  reduxMiddlewares: Array<Redux$Middleware> = [];
-  store: Redux$Store;
   listener: rxweb$SocketServer;
-  getServer(): rxweb$SocketServer {
-    return this.listener;
-  }
-  getSubject(): rxweb$Subject {
-    return this.sub;
-  }
-  next(value: rxweb$Task): void {
-    this.sub.get().next(value);
-  }
-  constructor() {
-    this.sub = new rxweb$Subject();
-
-    // https://github.com/facebook/flow/issues/1397
-    (this: any).next = this.next.bind(this);
-    (this: any).getSubject = this.getSubject.bind(this);
-    (this: any).getServer = this.getServer.bind(this);
-  }
-}
-
-export class rxweb$Server extends rxweb$ServerBase {
+  
   constructor(_port?: number = 3000) {
     super();
-    if (this.isBrowser()) return;
+    
+    (this: any).getServer = this.getServer.bind(this);
 
     _port && (this.port = _port);
     this.server = new KoaServer();
   }
 
-  isBrowser() {
-    return typeof window !== 'undefined' || (process && process.env.BROWSER);
-  }
-
-  applyReduxMiddleware() {
-    for (const r of this.routes) {
-      const rxwebMiddleware = ({dispatch, getState}) => reduxNext => action => {
-        if (action.type !== r.expression) return reduxNext(action);
-        // Need to inject dispatch (reduxNext) here.
-        r.action(this.next, reduxNext, action);
-        // Must return object because inside Redux.
-        return reduxNext({ type: '_' });
-      };
-      this.reduxMiddlewares.push(rxwebMiddleware);
-    }
+  getServer(): rxweb$SocketServer {
+     return this.listener;
   }
 
   applyRoutes() {
-    if (this.isBrowser()) return this.applyReduxMiddleware();
-
     this.server.use(KoaServerBodyParser());
 
     const router = new KoaServerRouter();
     for (const r of this.routes) {
       router[r.verb.toLowerCase()](r.expression, ctx => {
-        r.action(this.next, ctx.request, ctx.response);
+        // r.action(this.next, ctx.request, ctx.response);
+        r.action(this.next, ctx);
       });
     }
 
@@ -127,9 +55,6 @@ export class rxweb$Server extends rxweb$ServerBase {
     // Apply user-defined routes
     this.applyRoutes();
 
-    // Exit if inside browser
-    if (this.isBrowser()) return;
-
     // Start the server.
     this.listener = this.server.listen(this.port);
     if (!process.env.NODE_ENV || !process.env.NODE_ENV.production) {
@@ -140,28 +65,14 @@ export class rxweb$Server extends rxweb$ServerBase {
   stop(callback?: Function) {
     this.listener && (this.listener.close(callback));
   }
-
-  makeObserversAndSubscribeFromMiddlewares() {
-    // No subscription, observers does nothing.
-    // Create Observers that react to subscriber broadcast.
-    for (const m of this.middlewares) {
-      const o: rxweb$Observer = new rxweb$Observer(
-        this.sub.get().asObservable(),
-        m.filterFunc
-      );
-      o.subscribe(m.subscribeFunc);
-    }
-  }
 }
 
 export class rxweb$HttpsServer extends rxweb$Server {
-  constructor(_port: number = 3000, _store?: Redux$Store, _certFile: string, _privateKeyFile: string) {
-    super(_port, _store);
+  constructor(_port: number = 3000, _certFile: string, _privateKeyFile: string) {
+    super(_port);
   }
 }
 
 declare module 'rxweb' {
   declare var Server: rxweb$Server;
-  declare var Route: rxweb$Route;
-  declare var WebAction: rxweb$WebAction;
 }

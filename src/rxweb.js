@@ -6,8 +6,8 @@
 */
 import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch } from 'redux';
 import isPlainObject from 'lodash/isPlainObject';
-import { rxweb$Subject } from './subject';
-import { rxweb$Server, rxweb$Route } from './server';
+import { rxweb$Server } from './server';
+import { rxweb$Client } from './client';
 
 // Redux types
 export type Redux$State = any;
@@ -43,7 +43,8 @@ export class rxweb$Task {
     this.data = arg1;
     arg2 && (this.next = arg2);
     arg3 && (typeof arg3 === 'function') && (this.dispatch = arg3);
-    arg3 && (typeof arg3 === 'object') && (this.request = arg3);
+    arg3 && (typeof arg3 === 'object' && typeof arg4 !== 'undefined' && !isPlainObject(arg4)) && (this.request = arg3);
+    arg3 && (typeof arg3 === 'object' && typeof arg4 === 'undefined') && (this.ctx = arg3);
     arg4 && isPlainObject(arg4) && (this.action = arg4);
     arg4 && !isPlainObject(arg4) && (this.response = arg4);
   }
@@ -52,6 +53,7 @@ export class rxweb$Task {
   next: rxweb$NextAction;
   request: rxweb$Request;
   response: rxweb$Response;
+  ctx: Koa$Context;
   dispatch: Redux$Dispatch;
   action: Redux$Action;
 }
@@ -68,11 +70,49 @@ export class rxweb$Middleware {
   subscribeFunc: rxweb$SubscribeFunc;
 }
 
+// Browser client or server implementation
+export type rxweb$WebAction = (
+  _next: rxweb$NextAction,
+  _request: rxweb$Request,
+  _response: rxweb$Response
+) => void;
+
+export type rxweb$KoaAction = (
+  _next: rxweb$NextAction,
+  _ctx: Koa$Context
+) => void;
+
+export type rxweb$BrowserAction = (
+  _next: rxweb$NextAction,
+  _dispatch: Redux$Dispatch,
+  _reduxAction: Redux$Action
+) => void;
+
+export class rxweb$Route {
+  expression: string;
+  verb: string;
+  action: rxweb$WebAction & rxweb$BrowserAction & rxweb$KoaAction;
+  constructor(...params: any[]) {
+    const [ arg0, arg1, arg2 ] = params;
+    this.expression = arg0;
+
+    if (typeof arg1 === 'function') {
+      this.action = arg1;
+    } else {
+      this.verb = arg1;
+      this.action = arg2;
+    }
+  }
+}
+
 // re-export rxweb$Subject
 export { rxweb$Subject } from './subject';
 
-// re-export rxweb$Server
-export { rxweb$Server, rxweb$Route } from './server';
+// re-export rxweb$KoaServer
+export { rxweb$Server } from './server';
+
+// re-export rxweb$ReduxClient
+export { rxweb$Client } from './client';
 
 declare module 'rxweb' {
   declare var FilterFunc: rxweb$FilterFunc;
@@ -89,4 +129,5 @@ declare module 'rxweb' {
   declare var ReduxAction: Redux$Action;
   declare var ReduxDispatch: Redux$Dispatch;
   declare var ReduxMiddleware: Redux$Middleware;
+  declare var Client: rxweb$Client;
 }

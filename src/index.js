@@ -18,5 +18,6 @@ export {
   rxweb$Route as Route,
   rxweb$Subject as Subject,
   rxweb$Server as Server,
+  rxweb$Client as Client,
   rxweb$Task as Task
 } from './rxweb';
