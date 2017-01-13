@@ -12,7 +12,13 @@ fs.readdirSync('node_modules')
     return ['.bin'].indexOf(x) === -1;
   })
   .forEach(function(mod) {
-    nodeModules[mod] = 'commonjs ' + mod;
+    // nodeModules[mod] = 'commonjs ' + mod;
+    nodeModules[mod] = {
+      commonjs: mod,
+      commonjs2: mod,
+      amd: mod,
+      root: mod
+    }    
   });
 
 function getPackageMain() {
@@ -34,14 +40,14 @@ plugins.push(
 
 var config = {
   devtool: 'cheap-module-source-map',
-  entry: ["babel-polyfill", path.resolve(BASE_DIR, 'src/client.js')],
+  entry: [path.resolve(BASE_DIR, 'src/client.js')],
   output: {
     path: path.join(__dirname, '/../dist'),
     publicPath: 'dist/',
     filename: COMPONENT_FILE + '.js',
     sourceMapFilename: COMPONENT_FILE + '.map',
     library: COMPONENT_NAME,
-    libraryTarget: 'var' // browser <script></script>
+    libraryTarget: 'umd'
   },
   module: {
     loaders: [
@@ -56,5 +62,8 @@ var config = {
   },
   externals: nodeModules  
 };
+
+config.target = 'web';
+config.resolve.modulesDirectories = [ 'node_modules' ];
 
 module.exports = config;

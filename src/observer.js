@@ -1,6 +1,6 @@
 /* @flow */
 
-import {Observable, Scheduler} from 'rxjs';
+import {Observable, Scheduler} from 'rx-lite';
 import type {rxweb$Task, rxweb$FilterFunc} from './rxweb';
 
 export class rxweb$Observer {
