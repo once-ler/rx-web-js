@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Example</h1>
+<script src="polyfill.min.js"></script>
+<script src="browser.min.js"></script>
+<script src="../dist/rx-web.min.js"></script>
+<script type="text/babel">
+  const greenTheme = {
+    name: 'Green',
+    main: 'mediumseagreen',
+    secondary: 'tomato'
+  };
+
+  const redTheme = {
+    name: 'Red',
+    main: 'palevioletred',
+    secondary: 'slateblue'
+  };
+
+  // Reducers
+  const themeReducer = (state = {}, action) => {
+    switch (action.type) {
+      case 'CHANGE_THEME':
+        return Object.assign({}, state, { theme: action.theme })
+    default:
+      return state;
+    }
+  };
+
+  const reducer = (state = {}): Redux$State => {
+  switch (action.type) {
+    case 'FOO':
+      return {
+        ...state,
+        data: action.data
+      };
+    default:
+      return state;
+  }
+};
+
+const reducer1 = (state = {}, action) => {
+  switch (action.type) {
+    case 'BAR':
+      return {
+        ...state,
+        data: action.data
+      };
+    default:
+      return state;
+  }
+};
+
+const reducer2 = (state = {}, action) => {
+  switch (action.type) {
+    case 'REPLY':
+      return {
+        ...state,
+        data: action.data
+      };
+    default:
+      return state;
+  }
+};
+
+// Rxweb
+const client = new RxWeb.Client();
+client.middlewares = [
+  new rxweb$Middleware(
+    task => task.type === 'FOO',
+    task => {
+      console.log('I only react to foo.');
+
+      async function aside() {
+        const promise = new Promise(resolve => {
+          setTimeout(() => {
+            task.dispatch({type: task.type, data: Object.assign({silly:1}, task.data)});            
+            console.log(task.getState());
+            resolve();
+          }, 3000);
+        })
+
+        await promise;
+        console.log('I waited for 3 second');
+      }
+      aside();
+    }
+  )
+];
+client.routes = [
+  new rxweb$Route(
+    'hl7',
+    (next, dispatch, action, getState) => {
+      console.log(`Route is ${action.type}`);
+      const t = new rxweb$Task('FOO', { counter: 0 }, next, dispatch, action, getState);
+
+      next(t);
+    }
+  )
+];
+
+client.start();
+
+// Create store
+const middlewares = client.getReduxMiddleware();
+
+const reducers = Redux.combineReducers({ themeReducer, reducer, reducer1, reducer2 })
+
+const store = Redux.createStore(reducers, { theme: greenTheme }, applyMiddleware(...middlewares));
+
+store.dispatch({type: 'hl7'});
+
+</script>
+</body>
+</html>

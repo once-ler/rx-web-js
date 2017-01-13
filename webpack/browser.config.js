@@ -12,13 +12,8 @@ fs.readdirSync('node_modules')
     return ['.bin'].indexOf(x) === -1;
   })
   .forEach(function(mod) {
-    // nodeModules[mod] = 'commonjs ' + mod;
-    nodeModules[mod] = {
-      commonjs: mod,
-      commonjs2: mod,
-      amd: mod,
-      root: mod
-    }    
+    if (mod !== 'rx-lite' && mod !== 'redux')
+      nodeModules[mod] = 'commonjs2 ' + mod;
   });
 
 function getPackageMain() {
@@ -47,11 +42,11 @@ var config = {
     filename: COMPONENT_FILE + '.js',
     sourceMapFilename: COMPONENT_FILE + '.map',
     library: COMPONENT_NAME,
-    libraryTarget: 'umd'
+    libraryTarget: 'var'
   },
   module: {
     loaders: [
-      { test: /\.(js|jsx)/, exclude: 'node_modules', loader: 'babel'},
+      { test: /\.(js|jsx)/, exclude: /node_modules/, loader: 'babel'},
       { test: /\.css$/, loader: 'style-loader!css-loader'},
       { test: /\.json$/, loaders: ['json'] }
     ],
@@ -62,8 +57,5 @@ var config = {
   },
   externals: nodeModules  
 };
-
-config.target = 'web';
-config.resolve.modulesDirectories = [ 'node_modules' ];
 
 module.exports = config;

@@ -34,7 +34,7 @@ plugins.push(
 
 var config = {
   devtool: 'cheap-module-source-map',
-  entry: ["babel-polyfill", path.resolve(BASE_DIR, 'src/server.js')],
+  entry: ['babel-polyfill', path.resolve(BASE_DIR, 'src/server.js')],
   output: {
     path: path.join(__dirname, '/../dist'),
     publicPath: 'dist/',
@@ -45,7 +45,7 @@ var config = {
   },
   module: {
     loaders: [
-      { test: /\.(js|jsx)/, exclude: 'node_modules', loader: 'babel'},
+      { test: /\.(js|jsx)/, exclude: /node_modules/, loader: 'babel'},
       { test: /\.css$/, loader: 'style-loader!css-loader'},
       { test: /\.json$/, loaders: ['json'] }
     ],
