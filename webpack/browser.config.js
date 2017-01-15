@@ -12,7 +12,7 @@ fs.readdirSync('node_modules')
     return ['.bin'].indexOf(x) === -1;
   })
   .forEach(function(mod) {
-    if (mod !== 'rx-lite' && mod !== 'redux')
+    // if (mod !== 'rx-lite' && mod !== 'redux')
       nodeModules[mod] = 'commonjs2 ' + mod;
   });
 

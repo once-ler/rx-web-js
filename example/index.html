@@ -4,6 +4,8 @@
 <h1>Example</h1>
 <script src="polyfill.min.js"></script>
 <script src="browser.min.js"></script>
+<script src="rx.min.js"></script>
+<script src="redux.min.js"></script>
 <script src="../dist/rx-web.min.js"></script>
 <script type="text/babel">
   const greenTheme = {
@@ -28,7 +30,7 @@
     }
   };
 
-  const reducer = (state = {}): Redux$State => {
+  const reducer = (state = {}, action) => {
   switch (action.type) {
     case 'FOO':
       return {
@@ -66,13 +68,19 @@ const reducer2 = (state = {}, action) => {
 
 // Rxweb
 const client = new RxWeb.Client();
+
+const filterFunc = task => task.type === 'PARALLEL';
+const subscribeFunc = task => { console.log(task.data.counter); };
+const parallelMiddleware = new RxWeb.Middleware(filterFunc, subscribeFunc);
+
 client.middlewares = [
+  parallelMiddleware,
   new RxWeb.Middleware(
     task => task.type === 'FOO',
     task => {
       console.log('I only react to foo.');
 
-      async function aside() {
+      async function asideEffect() {
         const promise = new Promise(resolve => {
           setTimeout(() => {
             task.dispatch({type: task.type, data: Object.assign({silly:1}, task.data)});            
@@ -83,8 +91,14 @@ client.middlewares = [
 
         await promise;
         console.log('I waited for 3 second');
+
+        console.log('Starting some asynchronous tasks...');
+        for (let i = 0; i < 100; i++) {
+          const t = new RxWeb.Task('PARALLEL', { counter: i });
+          task.next(t);
+        }
       }
-      aside();
+      asideEffect();
     }
   )
 ];
@@ -93,7 +107,7 @@ client.routes = [
     'hl7',
     (next, dispatch, action, getState) => {
       console.log(`Route is ${action.type}`);
-      const t = new rxweb$Task('FOO', { counter: 0 }, next, dispatch, action, getState);
+      const t = new RxWeb.Task('FOO', { counter: 0 }, next, dispatch, action, getState);
 
       next(t);
     }
@@ -107,7 +121,7 @@ const middlewares = client.getReduxMiddleware();
 
 const reducers = Redux.combineReducers({ themeReducer, reducer, reducer1, reducer2 })
 
-const store = Redux.createStore(reducers, { theme: greenTheme }, applyMiddleware(...middlewares));
+const store = Redux.createStore(reducers, { theme: greenTheme }, Redux.applyMiddleware(...middlewares));
 
 store.dispatch({type: 'hl7'});
 

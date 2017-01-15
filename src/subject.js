@@ -1,6 +1,7 @@
 /* @flow */
 
-import {Subject as RxSubject, Scheduler} from 'rx-lite';
+import { Subject as  RxSubject } from 'rxjs/Subject';
+import 'rxjs/add/operator/publish';
 import type {rxweb$Task} from './rxweb';
 
 export class rxweb$Subject {
