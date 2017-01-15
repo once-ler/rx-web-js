@@ -67,7 +67,7 @@ const reducer2 = (state = {}, action) => {
 // Rxweb
 const client = new RxWeb.Client();
 client.middlewares = [
-  new rxweb$Middleware(
+  new RxWeb.Middleware(
     task => task.type === 'FOO',
     task => {
       console.log('I only react to foo.');
@@ -89,7 +89,7 @@ client.middlewares = [
   )
 ];
 client.routes = [
-  new rxweb$Route(
+  new RxWeb.Route(
     'hl7',
     (next, dispatch, action, getState) => {
       console.log(`Route is ${action.type}`);

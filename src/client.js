@@ -13,7 +13,7 @@ import type {
 } from './rxweb';
 import { rxweb$Base } from './base';
 
-export class rxweb$Client extends rxweb$Base {
+class rxweb$Client extends rxweb$Base {
   reduxMiddlewares: Array<Redux$Middleware> = [];
   store: Redux$Store;
 
@@ -47,25 +47,29 @@ export class rxweb$Client extends rxweb$Base {
   }
 }
 
-// flow types
-export {
-  rxweb$FilterFunc as FilterFunc,
-  rxweb$SubscribeFunc as SubscribeFunc,
-  Redux$Action as ReduxAction,
-  Redux$Dispatch as ReduxDispatch,
-  Redux$Middleware as ReduxMiddleware,
-  Redux$Store as ReduxStore,
-  Redux$State as ReduxState
-} from './rxweb';
+export { rxweb$Client as Client };
 
 export {
   rxweb$Middleware as Middleware,
   rxweb$Route as Route,
   rxweb$Subject as Subject,
-  rxweb$Client as Client,
+  rxweb$Observer as Observer,
   rxweb$Task as Task
 } from './rxweb';
 
+// flow types
 declare module 'rxweb' {
+  declare var Subject: rxweb$Subject;
+  declare var Observer: rxweb$Observer;
+  declare var Route: rxweb$Route;
+  declare var FilterFunc: rxweb$FilterFunc;
+  declare var SubscribeFunc: rxweb$SubscribeFunc;
+  declare var Middleware: Class<rxweb$Middleware>;
+  declare var Task: Class<rxweb$Task>;
+  declare var ReduxStore: Redux$Store;
+  declare var ReduxState: Redux$State;
+  declare var ReduxAction: Redux$Action;
+  declare var ReduxDispatch: Redux$Dispatch;
+  declare var ReduxMiddleware: Redux$Middleware;
   declare var Client: rxweb$Client;
 }

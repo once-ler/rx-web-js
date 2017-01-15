@@ -102,6 +102,7 @@ export class rxweb$Route {
 
 // re-export rxweb$Subject
 export { rxweb$Subject } from './subject';
+export { rxweb$Observer } from './observer';
 
 // re-export rxweb$KoaServer
 // export { rxweb$Server } from './server';
@@ -117,6 +118,7 @@ declare module 'rxweb' {
   declare var SocketServer: rxweb$SocketServer;
   declare var Task: Class<rxweb$Task>;
   // declare var Server: rxweb$Server;
+  declare var Observer: rxweb$Observer;
   declare var Subject: rxweb$Subject;
   declare var Route: rxweb$Route;
   declare var ReduxStore: Redux$Store;

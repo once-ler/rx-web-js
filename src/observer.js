@@ -8,7 +8,7 @@ export class rxweb$Observer {
 
   constructor(o: Observable<rxweb$Task>, filterFunc: rxweb$FilterFunc) {
     this._observer = o
-      .observeOn(Scheduler.queue)
+      // .observeOn(Scheduler.queue)
       .filter(filterFunc);
   }
 
