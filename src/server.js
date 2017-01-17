@@ -13,7 +13,7 @@ import type {
 } from './rxweb';
 import { rxweb$Base } from './base';
 
-export class rxweb$Server extends rxweb$Base {
+class rxweb$Server extends rxweb$Base {
   server: Koa$Koa;
   port: number;
   listener: rxweb$SocketServer;
@@ -72,22 +72,22 @@ export class rxweb$HttpsServer extends rxweb$Server {
   }
 }
 
-// flow types
-export {
-  rxweb$FilterFunc as FilterFunc,
-  rxweb$SubscribeFunc as SubscribeFunc,
-  rxweb$SocketType as SocketType,
-  rxweb$SocketServer as SocketServer
-} from './rxweb';
+export { rxweb$Server as Server };
 
 export {
   rxweb$Middleware as Middleware,
   rxweb$Route as Route,
   rxweb$Subject as Subject,
-  rxweb$Server as Server,
   rxweb$Task as Task
 } from './rxweb';
 
 declare module 'rxweb' {
+  declare var Subject: rxweb$Subject;
+  declare var Observer: rxweb$Observer;
+  declare var Route: rxweb$Route;
+  declare var FilterFunc: rxweb$FilterFunc;
+  declare var SubscribeFunc: rxweb$SubscribeFunc;
+  declare var Middleware: Class<rxweb$Middleware>;
+  declare var Task: Class<rxweb$Task>;
   declare var Server: rxweb$Server;
 }

@@ -34,7 +34,7 @@ plugins.push(
 
 var config = {
   devtool: 'cheap-module-source-map',
-  entry: ['babel-polyfill', path.resolve(BASE_DIR, 'src/server.js')],
+  entry: [path.resolve(BASE_DIR, 'src/server.js')],
   output: {
     path: path.join(__dirname, '/../dist'),
     publicPath: 'dist/',

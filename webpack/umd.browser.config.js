@@ -42,7 +42,7 @@ var config = {
     filename: COMPONENT_FILE + '.js',
     sourceMapFilename: COMPONENT_FILE + '.map',
     library: COMPONENT_NAME,
-    libraryTarget: 'var'
+    libraryTarget: 'umd'
   },
   module: {
     loaders: [

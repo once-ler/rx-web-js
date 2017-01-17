@@ -1,6 +1,6 @@
 {
   "name": "rx-web-js",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "",
   "main": "dist/browser/rx-web.min.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/* npm run lint && babel src --ignore __tests__ --out-dir dist",
-    "build:browser": "webpack --config webpack/browser.config.js",
+    "build:umd:browser": "webpack --config webpack/umd.browser.config.js",
     "build:umd:node": "webpack --config webpack/umd.node.config.js",
     "check": "flow check",
     "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",

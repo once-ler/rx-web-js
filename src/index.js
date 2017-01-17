@@ -20,5 +20,5 @@ export {
   rxweb$Task as Task
 } from './rxweb';
 
-export { rxweb$Server as Server } from './server';
-export { rxweb$Client as Client } from './client';
+export { Server } from './server';
+export { Client } from './client';
