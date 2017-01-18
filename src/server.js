@@ -78,6 +78,7 @@ export {
   rxweb$Middleware as Middleware,
   rxweb$Route as Route,
   rxweb$Subject as Subject,
+  rxweb$Observer as Observer,
   rxweb$Task as Task
 } from './rxweb';
 
