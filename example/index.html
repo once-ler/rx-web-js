@@ -83,7 +83,7 @@ client.middlewares = [
       async function asideEffect() {
         const promise = new Promise(resolve => {
           setTimeout(() => {
-            task.dispatch({type: task.type, data: Object.assign({silly:1}, task.data)});            
+            task.response({type: 'BAR', data: Object.assign({silly:1}, task.data)});           
             console.log(task.getState());
             resolve();
           }, 3000);
@@ -94,8 +94,12 @@ client.middlewares = [
 
         console.log('Starting some asynchronous tasks...');
         for (let i = 0; i < 100; i++) {
-          const t = new RxWeb.Task('PARALLEL', { counter: i });
+          const t = {
+            type: 'PARALLEL',
+            data: { counter: i }
+          };
           task.next(t);
+
         }
       }
       asideEffect();
@@ -105,9 +109,17 @@ client.middlewares = [
 client.routes = [
   new RxWeb.Route(
     'hl7',
-    (next, dispatch, action, getState) => {
-      console.log(`Route is ${action.type}`);
-      const t = new RxWeb.Task('FOO', { counter: 0 }, next, dispatch, action, getState);
+    (request, response, next, getState) => {
+      console.log(`Route is ${request.type}`);
+      
+      const t = {
+        type: 'FOO',
+        next,
+        request,
+        response,
+        getState,
+        data: { counter: 0 }
+      };
 
       next(t);
     }
