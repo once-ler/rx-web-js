@@ -4,6 +4,7 @@
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/observable/of';
 import type {rxweb$Task, rxweb$FilterFunc} from './rxweb';
 
 export class rxweb$Observer {

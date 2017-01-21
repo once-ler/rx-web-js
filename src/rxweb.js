@@ -15,6 +15,7 @@ export type Redux$Action = Object;
 export type Redux$Store = RdxStore<Redux$State, Redux$Action>;
 export type Redux$Middleware = RdxMiddleware<Redux$State, Redux$Action>;
 export type Redux$Dispatch = Dispatch<Redux$Action>;
+export type Redux$GetState = () => Redux$Store;
 
 // Enum types
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
@@ -39,28 +40,39 @@ export type rxweb$SocketServer = net$Server | tls$Server;
 // rxjs Subject.next | Redux dispatch
 export type rxweb$NextAction = (value: Object) => mixed;
 
+/*
 export class rxweb$Task {
   constructor(...params: any[]) {
     const [ arg0, arg1, arg2, arg3, arg4, arg5 ] = params;
     this.type = arg0;
-    this.data = arg1;
-    arg2 && (this.next = arg2);
-    arg3 && (this.request = arg3);
-    arg4 && (this.response = arg4);
+    // this.data = arg1;
+    arg1 && (this.next = arg1);
+    arg2 && (this.request = arg2);
+    arg3 && (this.response = arg3);
     // arg3 && (typeof arg3 === 'function') && (this.dispatch = arg3);
     // arg3 && (typeof arg3 === 'object') && (this.request = arg3);
     // arg4 && isPlainObject(arg4) && (this.action = arg4);
     // arg4 && !isPlainObject(arg4) && (this.response = arg4);
-    arg5 && (this.getState = arg5);
+    arg4 && (this.getState = arg4);
   }
   type: string;
   data: any;
   next: rxweb$NextAction;
   request: rxweb$Request;
   response: rxweb$Response;
-  dispatch: Redux$Dispatch;
-  action: Redux$Action;
+  // dispatch: Redux$Dispatch;
+  // action: Redux$Action;
   getState: () => Redux$Store;
+}
+*/
+
+export type rxweb$Task = {
+  type: string;
+  data: any;
+  next: rxweb$NextAction;
+  request: rxweb$Request;
+  response: rxweb$Response;
+  getState: Redux$GetState;
 }
 
 export class rxweb$Middleware {
@@ -77,15 +89,16 @@ export class rxweb$Middleware {
 
 // Browser client or server implementation
 export type rxweb$WebAction = (
-  _next: rxweb$NextAction,
   _request: rxweb$Request,
-  _response: rxweb$Response
+  _response: rxweb$Response,
+  _next: rxweb$NextAction
 ) => void;
 
 export type rxweb$BrowserAction = (
-  _next: rxweb$NextAction,
   _dispatch: Redux$Dispatch,
-  _reduxAction: Redux$Action
+  _reduxAction: Redux$Action,
+  _next: rxweb$NextAction,
+  _getState: Redux$GetState
 ) => void;
 
 export class rxweb$Route {
@@ -131,5 +144,6 @@ declare module 'rxweb' {
   declare var ReduxAction: Redux$Action;
   declare var ReduxDispatch: Redux$Dispatch;
   declare var ReduxMiddleware: Redux$Middleware;
+  declare var ReduxGetState: Redux$GetState
   // declare var Client: rxweb$Client;
 }

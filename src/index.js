@@ -2,6 +2,7 @@
 
 // flow types
 export {
+  rxweb$Task as Task,
   rxweb$FilterFunc as FilterFunc,
   rxweb$SubscribeFunc as SubscribeFunc,
   rxweb$SocketType as SocketType,
@@ -16,8 +17,8 @@ export {
 export {
   rxweb$Middleware as Middleware,
   rxweb$Route as Route,
-  rxweb$Subject as Subject,
-  rxweb$Task as Task
+  rxweb$Subject as Subject
+  // rxweb$Task as Task
 } from './rxweb';
 
 export { Server } from './server';
