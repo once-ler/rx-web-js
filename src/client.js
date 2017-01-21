@@ -1,16 +1,19 @@
 /* @flow */
 /* eslint no-unused-vars: 0, max-len: 0, flowtype/no-weak-types: 0, no-unused-expressions: 0, curly: 0, no-console: 0 */
+import type { MiddlewareAPI } from 'redux'
 import type {
   rxweb$Task,
-  rxweb$Middleware,
   rxweb$NextAction,
   rxweb$Route,
+  rxweb$FilterFunc,
+  rxweb$SubscribeFunc,
   Redux$State,
   Redux$Action,
   Redux$Store,
   Redux$Middleware,
   Redux$Dispatch
 } from './rxweb';
+import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
 
 class rxweb$Client extends rxweb$Base {
@@ -23,10 +26,11 @@ class rxweb$Client extends rxweb$Base {
 
   applyReduxMiddleware() {
     for (const r of this.routes) {
-      const rxwebMiddleware = ({dispatch, getState}) => reduxNext => action => {
+      const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxNext => action => {
         if (action.type !== r.expression) return reduxNext(action);
         // Need to inject dispatch (reduxNext) here.
-        r.action(this.next, reduxNext, action, getState);
+        // r.action(this.next, reduxNext, action, getState);
+        r.action(this.next, action, reduxNext, api.getState);
         // Must return object because inside Redux.
         return reduxNext({ type: '_' });
       };

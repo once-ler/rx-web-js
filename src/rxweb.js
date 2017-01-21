@@ -6,8 +6,8 @@
 */
 import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch } from 'redux';
 import isPlainObject from 'lodash/isPlainObject';
-// import { rxweb$Server } from './server';
-// import { rxweb$Client } from './client';
+import { rxweb$Subject } from './subject';
+import { rxweb$Observer } from './observer';
 
 // Redux types
 export type Redux$State = any;
@@ -26,11 +26,14 @@ export type rxweb$FilterFunc = (task: rxweb$Task) => boolean;
 export type rxweb$SubscribeFunc = (task: rxweb$Task) => void;
 
 // Web server types
-export type rxweb$Request = http$IncomingMessage & http$ClientRequest;
+export type rxweb$Request = http$IncomingMessage &
+  http$ClientRequest &
+  Redux$Action;
 export type rxweb$Response = http$IncomingMessage &
   http$ClientRequest &
   http$ServerResponse &
-  Koa$Response;
+  Koa$Response &
+  Redux$Dispatch;
 export type rxweb$SocketServer = net$Server | tls$Server;
 
 // rxjs Subject.next | Redux dispatch
@@ -42,10 +45,12 @@ export class rxweb$Task {
     this.type = arg0;
     this.data = arg1;
     arg2 && (this.next = arg2);
-    arg3 && (typeof arg3 === 'function') && (this.dispatch = arg3);
-    arg3 && (typeof arg3 === 'object') && (this.request = arg3);
-    arg4 && isPlainObject(arg4) && (this.action = arg4);
-    arg4 && !isPlainObject(arg4) && (this.response = arg4);
+    arg3 && (this.request = arg3);
+    arg4 && (this.response = arg4);
+    // arg3 && (typeof arg3 === 'function') && (this.dispatch = arg3);
+    // arg3 && (typeof arg3 === 'object') && (this.request = arg3);
+    // arg4 && isPlainObject(arg4) && (this.action = arg4);
+    // arg4 && !isPlainObject(arg4) && (this.response = arg4);
     arg5 && (this.getState = arg5);
   }
   type: string;
@@ -55,7 +60,7 @@ export class rxweb$Task {
   response: rxweb$Response;
   dispatch: Redux$Dispatch;
   action: Redux$Action;
-  getState: Redux$Store;
+  getState: () => Redux$Store;
 }
 
 export class rxweb$Middleware {

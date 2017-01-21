@@ -1,5 +1,5 @@
 /* @flow */
-import { rxweb$Route } from './rxweb';
+import { rxweb$Route, rxweb$Task, rxweb$Middleware } from './rxweb';
 import { rxweb$Subject } from './subject';
 import { rxweb$Observer } from './observer';
 

@@ -7,10 +7,13 @@ import type {
   rxweb$Task,
   rxweb$Request,
   rxweb$Response,
+  rxweb$Route,
   rxweb$SocketServer,
-  rxweb$Middleware,
-  rxweb$NextAction
+  rxweb$NextAction,
+  rxweb$FilterFunc,
+  rxweb$SubscribeFunc
 } from './rxweb';
+import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
 
 class rxweb$Server extends rxweb$Base {
