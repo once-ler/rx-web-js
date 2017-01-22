@@ -32,7 +32,7 @@
 
   const reducer = (state = {}, action) => {
   switch (action.type) {
-    case 'FOO':
+    case 'hl7':
       return {
         ...state,
         data: action.data
@@ -44,7 +44,7 @@
 
 const reducer1 = (state = {}, action) => {
   switch (action.type) {
-    case 'BAR':
+    case 'MOCK_FETCHING':
       return {
         ...state,
         data: action.data
@@ -56,7 +56,7 @@ const reducer1 = (state = {}, action) => {
 
 const reducer2 = (state = {}, action) => {
   switch (action.type) {
-    case 'REPLY':
+    case 'MOCK_FETCH_SUCCESS':
       return {
         ...state,
         data: action.data
@@ -69,6 +69,7 @@ const reducer2 = (state = {}, action) => {
 // Rxweb
 const client = new RxWeb.Client();
 
+// Rxweb Middleware/Observers
 const filterFunc = task => task.type === 'PARALLEL';
 const subscribeFunc = task => { console.log(task.data.counter); };
 const parallelMiddleware = new RxWeb.Middleware(filterFunc, subscribeFunc);
@@ -76,15 +77,24 @@ const parallelMiddleware = new RxWeb.Middleware(filterFunc, subscribeFunc);
 client.middlewares = [
   parallelMiddleware,
   new RxWeb.Middleware(
-    task => task.type === 'FOO',
+    task => task.type === 'MOCK_FETCH',
     task => {
-      console.log('I only react to foo.');
+      console.log('I am subscribing to MOCK_FETCH.');
 
       async function asideEffect() {
+        const { response, data, getState } = task;
+
         const promise = new Promise(resolve => {
           setTimeout(() => {
-            task.response({type: 'BAR', data: Object.assign({silly:1}, task.data)});           
-            console.log(task.getState());
+            response({
+              type: 'MOCK_FETCH_SUCCESS',
+              data: {
+                ...data,
+                other: 1
+              }
+            });
+
+            console.log(getState());
             resolve();
           }, 3000);
         })
@@ -106,22 +116,29 @@ client.middlewares = [
     }
   )
 ];
+
+
 client.routes = [
   new RxWeb.Route(
     'hl7',
     (request, response, next, getState) => {
       console.log(`Route is ${request.type}`);
       
-      const t = {
-        type: 'FOO',
+      // Update Redux store.
+      response({
+        type: 'MOCK_FETCHING',
+        data: { loading: true }
+      });
+
+      // Broadcast to subscribers.
+      next({
+        type: 'MOCK_FETCH',
         next,
         request,
         response,
         getState,
         data: { counter: 0 }
-      };
-
-      next(t);
+      });
     }
   )
 ];
@@ -135,7 +152,7 @@ const reducers = Redux.combineReducers({ themeReducer, reducer, reducer1, reduce
 
 const store = Redux.createStore(reducers, { theme: greenTheme }, Redux.applyMiddleware(...middlewares));
 
-store.dispatch({type: 'hl7'});
+store.dispatch({type: 'hl7', data: { startTest: true }});
 
 </script>
 </body>

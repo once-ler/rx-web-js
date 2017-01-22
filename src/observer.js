@@ -1,10 +1,10 @@
 /* @flow */
 
-// import {Observable, Scheduler} from 'rx-lite';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/observable/of';
+import isPlainObject from 'lodash/isPlainObject';
 import type {rxweb$Task, rxweb$FilterFunc} from './rxweb';
 
 export class rxweb$Observer {
@@ -27,7 +27,7 @@ export class rxweb$Observer {
   ) {
     this._observer
       .mergeMap(task =>
-        task.hasOwnProperty('response') ?
+        isPlainObject(task.response) ?
         Observable.of(task) :
         new Promise(resolve =>
           setTimeout(() => resolve(task), Math.random() * 30)
