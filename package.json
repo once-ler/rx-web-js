@@ -1,6 +1,6 @@
 {
   "name": "rx-web-js",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "",
   "main": "dist/browser/rx-web.min.js",
   "directories": {

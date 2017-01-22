@@ -1,13 +1,31 @@
 <!DOCTYPE html>
 <html>
+<head>
+<style>
+body { font-family: Georgia, serif; background: #f7f7ba; }
+h1 { color: rosybrown; margin: 0 10px;}
+.logger { background: #b6c0c8; margin: 10px;}
+.logger li {border-style: none none dashed none; border-width: 2px;  border-color: #d3d3d3;}
+</style>
+</head>
 <body>
 <h1>Example</h1>
+<ul id="logger" class="logger"></ul>
 <script src="polyfill.min.js"></script>
 <script src="browser.min.js"></script>
 <script src="rx.min.js"></script>
 <script src="redux.min.js"></script>
 <script src="../dist/rx-web.min.js"></script>
 <script type="text/babel">
+  const log = (text) => {
+    const li = document.createElement('LI');
+    const pre = document.createElement('PRE');
+    li.appendChild(pre);
+    const textEl = document.createTextNode(`${new Date().toISOString()} - ${text}`);
+    pre.appendChild(textEl);
+    document.getElementById('logger').appendChild(li);
+  };
+
   const greenTheme = {
     name: 'Green',
     main: 'mediumseagreen',
@@ -30,7 +48,7 @@
     }
   };
 
-  const reducer = (state = {}, action) => {
+  const hl7 = (state = {}, action) => {
   switch (action.type) {
     case 'hl7':
       return {
@@ -42,7 +60,7 @@
   }
 };
 
-const reducer1 = (state = {}, action) => {
+const mockFetching = (state = {}, action) => {
   switch (action.type) {
     case 'MOCK_FETCHING':
       return {
@@ -54,7 +72,7 @@ const reducer1 = (state = {}, action) => {
   }
 };
 
-const reducer2 = (state = {}, action) => {
+const mockFetchSuccess = (state = {}, action) => {
   switch (action.type) {
     case 'MOCK_FETCH_SUCCESS':
       return {
@@ -71,7 +89,11 @@ const client = new RxWeb.Client();
 
 // Rxweb Middleware/Observers
 const filterFunc = task => task.type === 'PARALLEL';
-const subscribeFunc = task => { console.log(task.data.counter); };
+const subscribeFunc = task => { 
+  console.log(task.data.counter);
+  log(`Task #${task.data.counter}`);
+
+};
 const parallelMiddleware = new RxWeb.Middleware(filterFunc, subscribeFunc);
 
 client.middlewares = [
@@ -80,29 +102,35 @@ client.middlewares = [
     task => task.type === 'MOCK_FETCH',
     task => {
       console.log('I am subscribing to MOCK_FETCH.');
+      log('I am subscribing to MOCK_FETCH.');
 
       async function asideEffect() {
         const { response, data, getState } = task;
 
         const promise = new Promise(resolve => {
           setTimeout(() => {
-            response({
+            const other = { other: 1 };
+            log(`Updating Redux reducer mockFetchSuccess with ${JSON.stringify(other)}`);
+            response.send({
               type: 'MOCK_FETCH_SUCCESS',
               data: {
                 ...data,
-                other: 1
+                other
               }
             });
 
             console.log(getState());
+            log(`Redux state is ${JSON.stringify(getState(), null, '  ')}`);
             resolve();
           }, 3000);
         })
 
         await promise;
         console.log('I waited for 3 second');
+        log('I waited for 3 second');
 
         console.log('Starting some asynchronous tasks...');
+        log('Starting some asynchronous tasks...');
         for (let i = 0; i < 100; i++) {
           const t = {
             type: 'PARALLEL',
@@ -122,10 +150,14 @@ client.routes = [
   new RxWeb.Route(
     'hl7',
     (request, response, next, getState) => {
-      console.log(`Route is ${request.type}`);
+      console.log(`Route is ${request.url}`);
+      log(`Route is ${request.url}`);
+
+      console.log(request);
+      log(`Request is ${JSON.stringify(request, null, '  ')}`);
       
       // Update Redux store.
-      response({
+      response.send({
         type: 'MOCK_FETCHING',
         data: { loading: true }
       });
@@ -148,9 +180,11 @@ client.start();
 // Create store
 const middlewares = client.getReduxMiddleware();
 
-const reducers = Redux.combineReducers({ themeReducer, reducer, reducer1, reducer2 })
+const reducers = Redux.combineReducers({ themeReducer, hl7, mockFetching, mockFetchSuccess })
 
 const store = Redux.createStore(reducers, { theme: greenTheme }, Redux.applyMiddleware(...middlewares));
+
+log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
 
 store.dispatch({type: 'hl7', data: { startTest: true }});
 

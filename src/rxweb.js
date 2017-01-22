@@ -16,6 +16,14 @@ export type Redux$Store = RdxStore<Redux$State, Redux$Action>;
 export type Redux$Middleware = RdxMiddleware<Redux$State, Redux$Action>;
 export type Redux$Dispatch = Dispatch<Redux$Action>;
 export type Redux$GetState = () => Redux$Store;
+export type Redux$Request = {
+  url?: string,
+  body: Redux$Action
+}
+export type Redux$Response = {
+  browser: boolean,
+  send: Redux$Dispatch
+};
 
 // Enum types
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
@@ -29,12 +37,12 @@ export type rxweb$SubscribeFunc = (task: rxweb$Task) => void;
 // Web server types
 export type rxweb$Request = http$IncomingMessage &
   http$ClientRequest &
-  Redux$Action;
+  Redux$Request;
 export type rxweb$Response = http$IncomingMessage &
   http$ClientRequest &
   http$ServerResponse &
   Koa$Response &
-  Redux$Dispatch;
+  Redux$Response;
 export type rxweb$SocketServer = net$Server | tls$Server;
 
 // rxjs Subject.next | Redux dispatch
