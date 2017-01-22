@@ -48,32 +48,6 @@ export type rxweb$SocketServer = net$Server | tls$Server;
 // rxjs Subject.next | Redux dispatch
 export type rxweb$NextAction = (value: Object) => mixed;
 
-/*
-export class rxweb$Task {
-  constructor(...params: any[]) {
-    const [ arg0, arg1, arg2, arg3, arg4, arg5 ] = params;
-    this.type = arg0;
-    // this.data = arg1;
-    arg1 && (this.next = arg1);
-    arg2 && (this.request = arg2);
-    arg3 && (this.response = arg3);
-    // arg3 && (typeof arg3 === 'function') && (this.dispatch = arg3);
-    // arg3 && (typeof arg3 === 'object') && (this.request = arg3);
-    // arg4 && isPlainObject(arg4) && (this.action = arg4);
-    // arg4 && !isPlainObject(arg4) && (this.response = arg4);
-    arg4 && (this.getState = arg4);
-  }
-  type: string;
-  data: any;
-  next: rxweb$NextAction;
-  request: rxweb$Request;
-  response: rxweb$Response;
-  // dispatch: Redux$Dispatch;
-  // action: Redux$Action;
-  getState: () => Redux$Store;
-}
-*/
-
 export type rxweb$Task = {
   type: string;
   data: any;
@@ -126,15 +100,8 @@ export class rxweb$Route {
   }
 }
 
-// re-export rxweb$Subject
 export { rxweb$Subject } from './subject';
 export { rxweb$Observer } from './observer';
-
-// re-export rxweb$KoaServer
-// export { rxweb$Server } from './server';
-
-// re-export rxweb$ReduxClient
-// export { rxweb$Client } from './client';
 
 declare module 'rxweb' {
   declare var FilterFunc: rxweb$FilterFunc;
@@ -143,7 +110,6 @@ declare module 'rxweb' {
   declare var SocketType: rxweb$SocketType;
   declare var SocketServer: rxweb$SocketServer;
   declare var Task: Class<rxweb$Task>;
-  // declare var Server: rxweb$Server;
   declare var Observer: rxweb$Observer;
   declare var Subject: rxweb$Subject;
   declare var Route: rxweb$Route;
@@ -153,5 +119,4 @@ declare module 'rxweb' {
   declare var ReduxDispatch: Redux$Dispatch;
   declare var ReduxMiddleware: Redux$Middleware;
   declare var ReduxGetState: Redux$GetState
-  // declare var Client: rxweb$Client;
 }

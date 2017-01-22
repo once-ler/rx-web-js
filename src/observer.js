@@ -26,7 +26,6 @@ export class rxweb$Observer {
   ) {
     this._observer
       .mergeMap(task =>
-        // typeof task.response !== 'undefined' && typeof task.response !== 'function' ?
         typeof task.response !== 'undefined' && !task.response.hasOwnProperty('browser') ?
         Observable.of(task) :
         new Promise(resolve =>
