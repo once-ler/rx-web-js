@@ -40,7 +40,7 @@ class rxweb$Server extends rxweb$Base {
     const router = new KoaServerRouter();
     for (const r of this.routes) {
       router[r.verb.toLowerCase()](r.expression, ctx => {
-        r.action(this.next, ctx.request, ctx.response);
+        r.action(ctx.request, ctx.response, this.next);
       });
     }
 
