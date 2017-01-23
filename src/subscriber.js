@@ -1,6 +1,5 @@
 /* @flow */
 /* eslint no-unused-vars: 0 */
-import {Subscription, Scheduler} from 'rx-lite';
 import RxSubscriber from 'rxjs/Subscriber';
 import type {rxweb$Task } from './rxweb';
 

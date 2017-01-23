@@ -5,7 +5,6 @@
   max-len: 0
 */
 import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch } from 'redux';
-import isPlainObject from 'lodash/isPlainObject';
 import { rxweb$Subject } from './subject';
 import { rxweb$Observer } from './observer';
 

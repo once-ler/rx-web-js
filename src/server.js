@@ -40,6 +40,8 @@ class rxweb$Server extends rxweb$Base {
     const router = new KoaServerRouter();
     for (const r of this.routes) {
       router[r.verb.toLowerCase()](r.expression, ctx => {
+        // Add send() function to response object.
+        ctx.response.send = d => ctx.response.body = d;
         r.action(ctx.request, ctx.response, this.next);
       });
     }
