@@ -4,15 +4,22 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/observable/of';
-import type {rxweb$Task, rxweb$FilterFunc} from './rxweb';
+import type {rxweb$Task, rxweb$FilterFunc, rxweb$PromiseFunc} from './rxweb';
 
 export class rxweb$Observer {
   _observer: Observable<rxweb$Task>;
 
-  constructor(o: Observable<rxweb$Task>, filterFunc: rxweb$FilterFunc) {
-    this._observer = o
+  constructor(o: Observable<rxweb$Task>, filterFunc: rxweb$FilterFunc, promiseFunc?: rxweb$PromiseFunc) {
+    const o$ = o
       // .observeOn(Scheduler.queue)
       .filter(filterFunc);
+
+    if (typeof promiseFunc === 'undefined') {
+      return this._observer = o$;
+    }
+
+    this._observer = o$
+      .mergeMap(promiseFunc);
   }
 
   observable(): Observable<rxweb$Task> {
