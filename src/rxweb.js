@@ -33,7 +33,7 @@ export const rxweb$HTTPS: rxweb$SocketType = 'HTTPS';
 
 export type rxweb$FilterFunc = (task: rxweb$Task) => boolean;
 export type rxweb$SubscribeFunc = (task: rxweb$Task) => void;
-export type rxweb$PromiseFunc = (promise: Promise<rxweb$Task>) => Observable<rxweb$Task>;
+export type rxweb$PromiseFunc = (task: rxweb$Task) => Promise<rxweb$Task>;
 
 // Web server types
 export type rxweb$Request = http$IncomingMessage &
@@ -63,7 +63,7 @@ export class rxweb$Middleware {
     const [ arg0, arg1, arg2 ] = params;
     arg0 && (this.filterFunc = arg0);
     !arg2 && (this.subscribeFunc = arg1);
-    arg2 && (this.promiseFunc = arg1 && this.subscribeFunc = arg2);
+    arg2 && (this.promiseFunc = arg1) && (this.subscribeFunc = arg2);
   }
   filterFunc: rxweb$FilterFunc;
   subscribeFunc: rxweb$SubscribeFunc;

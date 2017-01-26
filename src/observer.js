@@ -19,7 +19,9 @@ export class rxweb$Observer {
     }
 
     this._observer = o$
-      .mergeMap(promiseFunc);
+      .mergeMap(promiseFunc)
+      // .takeUntil({});
+      .catch(error => Observable.of({ type: 'FETCH_ERROR', error }));
   }
 
   observable(): Observable<rxweb$Task> {
