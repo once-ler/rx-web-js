@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/from';
 import type {rxweb$Task, rxweb$FilterFunc, rxweb$PromiseFunc} from './rxweb';
 
 export class rxweb$Observer {
@@ -19,9 +20,13 @@ export class rxweb$Observer {
     }
 
     this._observer = o$
-      .mergeMap(promiseFunc)
-      // .takeUntil({});
-      .catch(error => Observable.of({ type: 'FETCH_ERROR', error }));
+      .mergeMap(task => {
+        console.log(task)
+        const request = promiseFunc(task)
+          .then(data => ({ ...task, ...data }));
+
+        return Observable.from(request);
+      });
   }
 
   observable(): Observable<rxweb$Task> {

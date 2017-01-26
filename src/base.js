@@ -31,7 +31,8 @@ export class rxweb$Base {
     for (const m of this.middlewares) {
       const o: rxweb$Observer = new rxweb$Observer(
         this.sub.get().asObservable(),
-        m.filterFunc
+        m.filterFunc,
+        m.promiseFunc
       );
       o.subscribe(m.subscribeFunc);
     }
