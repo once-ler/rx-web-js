@@ -4,13 +4,13 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/from';
+import 'rxjs/add/observable/fromPromise';
 import type {rxweb$Task, rxweb$FilterFunc, rxweb$PromiseFunc} from './rxweb';
 
 export class rxweb$Observer {
   _observer: Observable<rxweb$Task>;
 
-  constructor(o: Observable<rxweb$Task>, filterFunc: rxweb$FilterFunc, promiseFunc?: rxweb$PromiseFunc) {
+  constructor(o: Observable<rxweb$Task>, filterFunc: rxweb$FilterFunc, promiseFunc: rxweb$PromiseFunc) {
     const o$ = o
       // .observeOn(Scheduler.queue)
       .filter(filterFunc);
@@ -21,11 +21,10 @@ export class rxweb$Observer {
 
     this._observer = o$
       .mergeMap(task => {
-        console.log(task)
-        const request = promiseFunc(task)
+        const request: Promise<rxweb$Task> = promiseFunc(task)
           .then(data => ({ ...task, ...data }));
 
-        return Observable.from(request);
+        return Observable.fromPromise(request);
       });
   }
 
@@ -40,7 +39,8 @@ export class rxweb$Observer {
   ) {
     this._observer
       .mergeMap(task =>
-        typeof task.response !== 'undefined' && !task.response.hasOwnProperty('browser') ?
+        // typeof task.response !== 'undefined' && !task.response.hasOwnProperty('browser') ?
+        typeof task.response !== 'undefined' && !task.hasOwnProperty('browser') ?
         Observable.of(task) :
         new Promise(resolve =>
           setTimeout(() => resolve(task), Math.random() * 30)

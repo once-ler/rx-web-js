@@ -105,13 +105,13 @@ client.middlewares = [
       log('I am subscribing to MOCK_FETCH.');
 
       async function asideEffect() {
-        const { response, data, getState } = task;
+        const { store, data } = task;
 
         const promise = new Promise(resolve => {
           setTimeout(() => {
             const other = { other: 1 };
             log(`Updating Redux reducer mockFetchSuccess with ${JSON.stringify(other)}`);
-            response.send({
+            store.dispatch({
               type: 'MOCK_FETCH_SUCCESS',
               data: {
                 ...data,
@@ -119,8 +119,8 @@ client.middlewares = [
               }
             });
 
-            console.log(getState());
-            log(`Redux state is ${JSON.stringify(getState(), null, '  ')}`);
+            console.log(store.getState());
+            log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
             resolve();
           }, 3000);
         })
@@ -145,36 +145,6 @@ client.middlewares = [
   )
 ];
 
-
-client.routes = [
-  new RxWeb.Route(
-    'hl7',
-    (request, response, next, getState) => {
-      console.log(`Route is ${request.url}`);
-      log(`Route is ${request.url}`);
-
-      console.log(request);
-      log(`Request is ${JSON.stringify(request, null, '  ')}`);
-      
-      // Update Redux store.
-      response.send({
-        type: 'MOCK_FETCHING',
-        data: { loading: true }
-      });
-
-      // Broadcast to subscribers.
-      next({
-        type: 'MOCK_FETCH',
-        next,
-        request,
-        response,
-        getState,
-        data: { counter: 0 }
-      });
-    }
-  )
-];
-
 client.start();
 
 // Create store
@@ -186,7 +156,7 @@ const store = Redux.createStore(reducers, { theme: greenTheme }, Redux.applyMidd
 
 log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
 
-store.dispatch({type: 'hl7', data: { startTest: true }});
+store.dispatch({type: 'MOCK_FETCH', data: { startTest: true }});
 
 </script>
 </body>

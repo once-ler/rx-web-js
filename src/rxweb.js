@@ -5,7 +5,7 @@
   max-len: 0
 */
 import { Observable } from 'rxjs/Observable';
-import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch } from 'redux';
+import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch, MiddlewareAPI } from 'redux';
 import { rxweb$Subject } from './subject';
 import { rxweb$Observer } from './observer';
 
@@ -16,6 +16,7 @@ export type Redux$Store = RdxStore<Redux$State, Redux$Action>;
 export type Redux$Middleware = RdxMiddleware<Redux$State, Redux$Action>;
 export type Redux$Dispatch = Dispatch<Redux$Action>;
 export type Redux$GetState = () => Redux$Store;
+/*
 export type Redux$Request = {
   url?: string,
   body: Redux$Action
@@ -24,6 +25,7 @@ export type Redux$Response = {
   browser: boolean,
   send: Redux$Dispatch
 };
+*/
 
 // Enum types
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
@@ -37,13 +39,11 @@ export type rxweb$PromiseFunc = (task: rxweb$Task) => Promise<rxweb$Task>;
 
 // Web server types
 export type rxweb$Request = http$IncomingMessage &
-  http$ClientRequest &
-  Redux$Request;
+  http$ClientRequest;
 export type rxweb$Response = http$IncomingMessage &
   http$ClientRequest &
   http$ServerResponse &
-  Koa$Response &
-  Redux$Response;
+  Koa$Response;
 export type rxweb$SocketServer = net$Server | tls$Server;
 
 // rxjs Subject.next | Redux dispatch
@@ -55,7 +55,7 @@ export type rxweb$Task = {
   next: rxweb$NextAction;
   request: rxweb$Request;
   response: rxweb$Response;
-  getState: Redux$GetState;
+  store: MiddlewareAPI<Redux$State, Redux$Action>;
 }
 
 export class rxweb$Middleware {

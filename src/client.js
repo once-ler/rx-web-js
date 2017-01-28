@@ -25,17 +25,19 @@ class rxweb$Client extends rxweb$Base {
   }
 
   applyReduxMiddleware() {
-    for (const r of this.routes) {
+    for (const r of this.middlewares) {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
-        if (action.type !== r.expression) return reduxDispatch(action);
-        // Need to inject dispatch (reduxNext) here.
-        r.action(
-          { url: action.type, body: action },
-          { browser: true, send: reduxDispatch },
-          this.next,
-          api.getState
-        );
-        return reduxDispatch({...api.getState(), ...action});
+        this.next({
+          ...action,
+          browser: true,
+          next: this.next,
+          store: {
+            dispatch: reduxDispatch,
+            getState: api.getState
+          }
+        });
+        return reduxDispatch({type: '_'});
+        // return reduxDispatch({...api.getState(), ...action});
       };
       this.reduxMiddlewares.push(rxwebMiddleware);
     }
