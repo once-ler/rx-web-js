@@ -3,6 +3,8 @@
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
 import KoaServerBodyParser from 'koa-bodyparser';
+import statuses from 'statuses';
+import Stream from 'stream';
 import type {
   rxweb$Task,
   rxweb$Request,
@@ -31,7 +33,7 @@ class rxweb$Server extends rxweb$Base {
   }
 
   getServer(): rxweb$SocketServer {
-     return this.listener;
+    return this.listener;
   }
 
   applyRoutes() {
@@ -40,8 +42,15 @@ class rxweb$Server extends rxweb$Base {
     const router = new KoaServerRouter();
     for (const r of this.routes) {
       router[r.verb.toLowerCase()](r.expression, ctx => {
+        // Disable koa response after all middlewares have been exhausted.
+        // We want to manually handle when to respond.
+        ctx.respond = false;
         // Add send() function to response object.
-        ctx.response.send = d => ctx.response.body = d;
+        ctx.response.send = d => {
+          ctx.respond = true;
+          ctx.response.body = d;
+          this.respond.call(ctx);
+        };
         r.action(ctx.request, ctx.response, this.next);
       });
     }
@@ -68,6 +77,45 @@ class rxweb$Server extends rxweb$Base {
 
   stop(callback?: Function) {
     this.listener && (this.listener.close(callback));
+  }
+
+  // https://github.com/koajs/koa/blob/master/lib/application.js#L194
+  respond() {
+    const res = this.res;
+    if (res.headersSent || !this.writable) return;
+
+    let body: (string|Buffer|stream$Duplex|Object|Array<*>|number|bool) = this.body;
+    const code = this.status;
+
+    // ignore body
+    if (statuses.empty[code]) {
+      // strip headers
+      this.body = null;
+      return res.end();
+    }
+
+    if ('HEAD' == this.method) {
+      if (isJSON(body)) this.length = Buffer.byteLength(JSON.stringify(body));
+      return res.end();
+    }
+
+    // status body
+    if (null == body) {
+      this.type = 'text';
+      body = this.message || String(code);
+      this.length = Buffer.byteLength(body);
+      return res.end(body);
+    }
+
+    // responses
+    if (Buffer.isBuffer(body)) return res.end(body);
+    if ('string' == typeof body) return res.end(body);
+    if (body instanceof Stream) return body.pipe(res);
+
+    // body: json
+    body = JSON.stringify(body);
+    this.length = Buffer.byteLength(body);
+    res.end(body);
   }
 }
 
