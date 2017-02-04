@@ -3,7 +3,8 @@
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/filter';
-import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/observeOn';
+import { asap } from 'rxjs/scheduler/asap';
 import 'rxjs/add/observable/fromPromise';
 import type {rxweb$Task, rxweb$FilterFunc, rxweb$PromiseFunc} from './rxweb';
 
@@ -12,7 +13,7 @@ export class rxweb$Observer {
 
   constructor(o: Observable<rxweb$Task>, filterFunc: rxweb$FilterFunc, promiseFunc: rxweb$PromiseFunc) {
     const o$ = o
-      // .observeOn(Scheduler.queue)
+      .observeOn(asap)
       .filter(filterFunc);
 
     if (typeof promiseFunc === 'undefined') {
@@ -39,13 +40,10 @@ export class rxweb$Observer {
   ) {
     this._observer
       .mergeMap(task =>
-        // typeof task.response !== 'undefined' && !task.response.hasOwnProperty('browser') ?
-        typeof task.response !== 'undefined' && !task.hasOwnProperty('browser') ?
-        Observable.of(task) :
         new Promise(resolve =>
           setTimeout(() => resolve(task), Math.random() * 30)
         )
-      )
+      )      
       .subscribe(onNext, onError, onCompleted);
   }
 }

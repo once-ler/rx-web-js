@@ -29,7 +29,6 @@ class rxweb$Client extends rxweb$Base {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
         this.next({
           ...action,
-          browser: true,
           next: this.next,
           store: {
             dispatch: reduxDispatch,
