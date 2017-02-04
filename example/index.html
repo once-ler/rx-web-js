@@ -13,7 +13,9 @@ h1 { color: rosybrown; margin: 0 10px;}
 <ul id="logger" class="logger"></ul>
 <script src="polyfill.min.js"></script>
 <script src="browser.min.js"></script>
+<!--
 <script src="rx.min.js"></script>
+-->
 <script src="redux.min.js"></script>
 <script src="../dist/rx-web.min.js"></script>
 <script type="text/babel">
@@ -88,16 +90,16 @@ const mockFetchSuccess = (state = {}, action) => {
 const client = new RxWeb.Client();
 
 // Rxweb Middleware/Observers
-const filterFunc = task => task.type === 'PARALLEL';
+const filterFunc = task => task.type === 'ASYNC';
 const subscribeFunc = task => { 
   console.log(task.data.counter);
   log(`Task #${task.data.counter}`);
 
 };
-const parallelMiddleware = new RxWeb.Middleware(filterFunc, subscribeFunc);
+const ASYNCMiddleware = new RxWeb.Middleware(filterFunc, subscribeFunc);
 
 client.middlewares = [
-  parallelMiddleware,
+  ASYNCMiddleware,
   new RxWeb.Middleware(
     task => task.type === 'MOCK_FETCH',
     task => {
@@ -132,12 +134,10 @@ client.middlewares = [
         console.log('Starting some asynchronous tasks...');
         log('Starting some asynchronous tasks...');
         for (let i = 0; i < 100; i++) {
-          const t = {
-            type: 'PARALLEL',
+          setTimeout(() => task.next({
+            type: 'ASYNC',
             data: { counter: i }
-          };
-          task.next(t);
-
+          }), Math.random() * 30);
         }
       }
       asideEffect();

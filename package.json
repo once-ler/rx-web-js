@@ -1,6 +1,6 @@
 {
   "name": "rx-web-js",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "",
   "main": "dist/browser/rx-web.min.js",
   "directories": {
@@ -30,6 +30,7 @@
   "dependencies": {
     "koa": "^2.0.0-alpha.7",
     "koa-bodyparser": "^3.2.0",
+    "koa-is-json": "^1.0.0",
     "koa-router": "^7.0.1",
     "redux": "^3.6.0",
     "rxjs": "^5.0.3",

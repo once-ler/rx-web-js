@@ -16,16 +16,6 @@ export type Redux$Store = RdxStore<Redux$State, Redux$Action>;
 export type Redux$Middleware = RdxMiddleware<Redux$State, Redux$Action>;
 export type Redux$Dispatch = Dispatch<Redux$Action>;
 export type Redux$GetState = () => Redux$Store;
-/*
-export type Redux$Request = {
-  url?: string,
-  body: Redux$Action
-}
-export type Redux$Response = {
-  browser: boolean,
-  send: Redux$Dispatch
-};
-*/
 
 // Enum types
 const socketTypes = { HTTP: 'HTTP', HTTPS: 'HTTPS' };
@@ -45,8 +35,10 @@ export type rxweb$Response = http$IncomingMessage &
   http$ServerResponse &
   Koa$Response;
 export type rxweb$SocketServer = net$Server | tls$Server;
+export type rxweb$Socket = net$Socket;
+export type rxweb$Body = any;
 
-// rxjs Subject.next | Redux dispatch
+// rxjs Subject.next()
 export type rxweb$NextAction = (value: Object) => mixed;
 
 export type rxweb$Task = {
@@ -110,6 +102,8 @@ declare module 'rxweb' {
   declare var Middleware: Class<rxweb$Middleware>;
   declare var SocketType: rxweb$SocketType;
   declare var SocketServer: rxweb$SocketServer;
+  declare var Socket: rxweb$Socket;
+  declare var Body: rxweb$Body;
   declare var Task: Class<rxweb$Task>;
   declare var Observer: rxweb$Observer;
   declare var Subject: rxweb$Subject;

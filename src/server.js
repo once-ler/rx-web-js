@@ -3,6 +3,7 @@
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
 import KoaServerBodyParser from 'koa-bodyparser';
+import isJSON from 'koa-is-json';
 import statuses from 'statuses';
 import Stream from 'stream';
 import type {
@@ -11,6 +12,8 @@ import type {
   rxweb$Response,
   rxweb$Route,
   rxweb$SocketServer,
+  rxweb$Socket,
+  rxweb$Body,
   rxweb$NextAction,
   rxweb$FilterFunc,
   rxweb$SubscribeFunc
@@ -22,6 +25,12 @@ class rxweb$Server extends rxweb$Base {
   server: Koa$Koa;
   port: number;
   listener: rxweb$SocketServer;
+  body: rxweb$Body;
+  length: ?number;
+  message: ?string;
+  type: ?string;
+  status: ?number;
+  res: rxweb$Socket;
   
   constructor(_port?: number = 3000) {
     super();
@@ -84,7 +93,7 @@ class rxweb$Server extends rxweb$Base {
     const res = this.res;
     if (res.headersSent || !this.writable) return;
 
-    let body: (string|Buffer|stream$Duplex|Object|Array<*>|number|bool) = this.body;
+    let body = this.body;
     const code = this.status;
 
     // ignore body

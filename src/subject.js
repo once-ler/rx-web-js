@@ -2,8 +2,6 @@
 
 import { Subject as  RxSubject } from 'rxjs/Subject';
 import 'rxjs/add/operator/publish';
-import 'rxjs/add/operator/subscribeOn';
-import { asap } from 'rxjs/scheduler/asap';
 import type {rxweb$Task} from './rxweb';
 
 export class rxweb$Subject {
@@ -12,9 +10,7 @@ export class rxweb$Subject {
 
   constructor() {
     this.sub = new RxSubject();
-    this.sub
-      .subscribeOn(asap)
-      .publish();
+    this.sub.publish();
   }
 
   get(): RxSubject<rxweb$Task> {
