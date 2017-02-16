@@ -53,10 +53,12 @@ export type rxweb$Task = {
 export class rxweb$Middleware {
   constructor(...params: any[]) {
     const [ arg0, arg1, arg2 ] = params;
-    arg0 && (this.filterFunc = arg0);
+    (typeof arg0 === 'function') && (this.filterFunc = arg0);
+    (typeof arg0 === 'string') && (this.type = arg0) && (this.filterFunc = task => task.type === arg0);
     !arg2 && (this.subscribeFunc = arg1);
     arg2 && (this.promiseFunc = arg1) && (this.subscribeFunc = arg2);
   }
+  type: string;
   filterFunc: rxweb$FilterFunc;
   subscribeFunc: rxweb$SubscribeFunc;
   promiseFunc: rxweb$PromiseFunc;
