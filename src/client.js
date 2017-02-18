@@ -30,7 +30,6 @@ class rxweb$Client extends rxweb$Base {
   createReduxReducer(_type: string) {
     return {
       [camelCase(_type)]: (state = {}, action) => {
-        console.log(action);
         switch (action.type) {
           case `${_type}_INIT`:
             return {
@@ -57,18 +56,19 @@ class rxweb$Client extends rxweb$Base {
   applyReduxMiddleware() {
     for (const r of this.middlewares) {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
+        if (action.type !== r.type) return reduxDispatch(action);
+
         this.next({
           ...action,
           next: this.next,
-          done: () => reduxDispatch({ type: `${action.type}_SUCCESS`, ...api.getState(), ...action }),
-          error: () => reduxDispatch({ type: `${action.type}_ERROR`, ...api.getState(), ...action }),
+          done: (data: Redux$Action) => api.dispatch({ ...api.getState(), data, type: `${action.type}_SUCCESS` }),
+          error: (data: Redux$Action) => api.dispatch({ ...api.getState(), data, type: `${action.type}_ERROR` }),
           store: {
-            dispatch: reduxDispatch,
+            dispatch: api.dispatch,
             getState: api.getState
           }
         });
-        return reduxDispatch({type: `_`});
-        // return reduxDispatch({...api.getState(), ...action});
+        return reduxDispatch({...api.getState(), ...action});
       };
       this.reduxMiddlewares.push(rxwebMiddleware);
 

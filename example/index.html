@@ -70,7 +70,7 @@ const mockFetching = (state = {}, action) => {
       return state;
   }
 };
-
+/*
 const mockFetchSuccess = (state = {}, action) => {
   switch (action.type) {
     case 'MOCK_FETCH_SUCCESS':
@@ -82,7 +82,7 @@ const mockFetchSuccess = (state = {}, action) => {
       return state;
   }
 };
-
+*/
 // Rxweb
 const client = new RxWeb.Client();
 
@@ -99,25 +99,26 @@ client.middlewares = [
   ASYNCMiddleware,
   new RxWeb.Middleware(
     'GENERATE_REDUCER',
-    task => { task.data = { message: 'From GENERATE_REDUCER' }; task.done(); }
+    task => task.done({ ...task.data, success: 'From GENERATE_REDUCER' })
   ),
   new RxWeb.Middleware(
     'ANOTHER_GENERATE_REDUCER',
-    task => { task.data = { error: 'From ANOTHER_GENERATE_REDUCER' }; task.error(); }
+    task => task.error({ ...task.data, error: 'From ANOTHER_GENERATE_REDUCER'})
   ),
   new RxWeb.Middleware(
-    task => task.type === 'MOCK_FETCH',
+    'MOCK_FETCH',
     task => {
       console.log('I am subscribing to MOCK_FETCH.');
       log('I am subscribing to MOCK_FETCH.');
 
       async function asideEffect() {
-        const { store, data, next } = task;
+        const { store, data, next, done } = task;
 
         const promise = new Promise(resolve => {
           setTimeout(() => {
             const other = { other: 1 };
             log(`Updating Redux reducer mockFetchSuccess with ${JSON.stringify(other)}`);
+            /*
             store.dispatch({
               type: 'MOCK_FETCH_SUCCESS',
               data: {
@@ -125,6 +126,8 @@ client.middlewares = [
                 other
               }
             });
+            */
+            done({...data, other});
 
             console.log(store.getState());
             log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
@@ -137,12 +140,13 @@ client.middlewares = [
         log('I waited for 3 second');
 
         // next({ type: 'GENERATE_REDUCER' });
-        log(`Calling an auto-generated reducer ANOTHER_GENERATE_REDUCER_ERROR`);
-        store.dispatch({type: 'ANOTHER_GENERATE_REDUCER_ERROR'});
+        log(`Calling an auto-generated reducer ANOTHER_GENERATE_REDUCER`);
+        // store.dispatch({type: 'ANOTHER_GENERATE_REDUCER', data: 'error'});
+        done();
         log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);        
 
         console.log('Starting some asynchronous tasks...');
-        log('Starting some asynchronous tasks...');
+        log('Starting some asynchronous tasks (will not update Redux)...');
         for (let i = 0; i < 100; i++) {
           setTimeout(() => next({
             type: 'ASYNC',
@@ -162,13 +166,15 @@ const middlewares = client.getReduxMiddleware();
 
 const rxReducers = client.getReduxReducers();
 
-const reducers = Redux.combineReducers({ themeReducer, hl7, mockFetching, mockFetchSuccess, ...rxReducers });
+const reducers = Redux.combineReducers({ themeReducer, hl7, mockFetching, ...rxReducers });
 console.log(rxReducers);
 const store = Redux.createStore(reducers, { theme: greenTheme }, Redux.applyMiddleware(...middlewares));
 
 log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
 
 store.dispatch({type: 'MOCK_FETCH', data: { startTest: true }});
+store.dispatch({type: 'ANOTHER_GENERATE_REDUCER', data: {message: 'hey'}});
+store.dispatch({type: 'GENERATE_REDUCER', data: {message: 'hey again'}})
 
 </script>
 </body>
