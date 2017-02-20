@@ -60,7 +60,8 @@ class rxweb$Server extends rxweb$Base {
           ctx.response.body = d;
           this.respond.call(ctx);
         };
-        r.action(ctx.request, ctx.response, this.next);
+        const { params } = ctx;
+        r.action({...ctx.request, params}, ctx.response, this.next);
       });
     }
 
