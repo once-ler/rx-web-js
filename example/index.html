@@ -14,6 +14,7 @@ h1 { color: rosybrown; margin: 0 10px;}
 <script src="polyfill.min.js"></script>
 <script src="browser.min.js"></script>
 <script src="redux.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="../dist/rx-web.min.js"></script>
 <script type="text/babel">
   const log = (text) => {
@@ -106,6 +107,25 @@ client.middlewares = [
     task => task.error({ ...task.data, error: 'From ANOTHER_GENERATE_REDUCER'})
   ),
   new RxWeb.Middleware(
+    'TEST_PROMISE',
+    // task => (new Promise(resolve => { setTimeout(() => { task.data = { message: 'Should succeed.' }; log('TEST_PROMISE set time.'); return resolve(task); }, 1000); })),
+    task => axios.get('http://date.jsontest.com/'),
+    task => {
+      console.log('TEST_PROMISE completed.');
+      log('TEST_PROMISE completed.');
+      log(`Redux state is ${JSON.stringify(task.store.getState(), null, '  ')}`); 
+    }
+  ),
+  new RxWeb.Middleware(
+    'TEST_PROMISE_FAIL',
+    task => axios.get('http://this-site-cannot-possibly-exist.org/'),
+    task => {
+      console.log('TEST_PROMISE_FAIL completed.');
+      log('TEST_PROMISE_FAIL completed.');
+      log(`Redux state is ${JSON.stringify(task.store.getState(), null, '  ')}`); 
+    }
+  ), 
+  new RxWeb.Middleware(
     'MOCK_FETCH',
     task => {
       console.log('I am subscribing to MOCK_FETCH.');
@@ -174,7 +194,9 @@ log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
 
 store.dispatch({type: 'MOCK_FETCH', data: { startTest: true }});
 store.dispatch({type: 'ANOTHER_GENERATE_REDUCER', data: {message: 'hey'}});
-store.dispatch({type: 'GENERATE_REDUCER', data: {message: 'hey again'}})
+store.dispatch({type: 'GENERATE_REDUCER', data: {message: 'hey again'}});
+store.dispatch({type: 'TEST_PROMISE', data: {message: 'testing a promise'}});
+store.dispatch({type: 'TEST_PROMISE_FAIL', data: {message: 'testing a failed promise'}});
 
 </script>
 </body>

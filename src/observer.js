@@ -1,9 +1,13 @@
 /* @flow */
+/* eslint curly: 0 */
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/observable/fromPromise';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/observable/of';
 import type {rxweb$Task, rxweb$FilterFunc, rxweb$PromiseFunc} from './rxweb';
 
 export class rxweb$Observer {
@@ -17,11 +21,29 @@ export class rxweb$Observer {
     }
 
     this._observer = o$
-      .mergeMap(task => {
+      .mergeMap((task: rxweb$Task) => {
         const request: Promise<rxweb$Task> = promiseFunc(task)
-          .then(data => ({ ...task, ...data }));
+          .then(data => {
+            // Update store with <action.type>_SUCCESS.
+            if (task.done)
+              task.done(data);
+            return { ...task, ...data };
+          })
+          .catch(data => {
+            // Update store with <action.type>_ERROR.
+            if (task.error)
+              task.error(data);
+            return { ...task, ...data };
+          });         
 
-        return Observable.fromPromise(request);
+        return Observable
+          .fromPromise(request)
+          .catch(data => {
+            // Update store with <action.type>_ERROR.
+            if (task.error)
+              task.error(data);
+            return Observable.of({ ...task, ...data });
+          });
       });
   }
 

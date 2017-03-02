@@ -57,18 +57,16 @@ class rxweb$Client extends rxweb$Base {
     for (const r of this.middlewares) {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
         if (action.type !== r.type) return reduxDispatch(action);
+        const { dispatch, getState } = api;
 
         this.next({
           ...action,
           next: this.next,
-          done: (data: Redux$Action) => api.dispatch({ ...api.getState(), data, type: `${action.type}_SUCCESS` }),
-          error: (data: Redux$Action) => api.dispatch({ ...api.getState(), data, type: `${action.type}_ERROR` }),
-          store: {
-            dispatch: api.dispatch,
-            getState: api.getState
-          }
+          done: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_SUCCESS` }),
+          error: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_ERROR` }),
+          store: { dispatch, getState }
         });
-        return reduxDispatch({...api.getState(), ...action});
+        return reduxDispatch({...getState(), ...action});
       };
       this.reduxMiddlewares.push(rxwebMiddleware);
 
