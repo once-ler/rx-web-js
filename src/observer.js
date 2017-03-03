@@ -22,27 +22,22 @@ export class rxweb$Observer {
 
     this._observer = o$
       .mergeMap((task: rxweb$Task) => {
-        const request: Promise<rxweb$Task> = promiseFunc(task)
-          .then(data => {
+        return Observable.fromPromise(promiseFunc(task))
+          .map(data => {
             // Update store with <action.type>_SUCCESS.
+            const resp = { ...task, ...data };
             if (task.done)
-              task.done(data);
-            return { ...task, ...data };
+              task.done(resp);
+            return Observable.of(resp);
           })
-          .catch(data => {
+          .catch((e) => {
             // Update store with <action.type>_ERROR.
+            // For axios: https://github.com/mzabriskie/axios/blob/master/UPGRADE_GUIDE.md#error-handling
+            const { message, code, response } = e;
+            const resp = { ...task, ...e, message, code, response };
             if (task.error)
-              task.error(data);
-            return { ...task, ...data };
-          });         
-
-        return Observable
-          .fromPromise(request)
-          .catch(data => {
-            // Update store with <action.type>_ERROR.
-            if (task.error)
-              task.error(data);
-            return Observable.of({ ...task, ...data });
+              task.error(resp);
+            return Observable.of(resp);
           });
       });
   }
@@ -57,7 +52,7 @@ export class rxweb$Observer {
     onCompleted: ?() => mixed
   ) {
     this._observer
-      .subscribe(onNext, onError, onCompleted);
+      .subscribe(onNext, onError || (e => console.error(e)), onCompleted);
   }
 }
 

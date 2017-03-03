@@ -113,7 +113,7 @@ client.middlewares = [
     task => {
       console.log('TEST_PROMISE completed.');
       log('TEST_PROMISE completed.');
-      log(`Redux state is ${JSON.stringify(task.store.getState(), null, '  ')}`); 
+      // log(`Redux state is ${JSON.stringify(task.store.getState(), null, '  ')}`); 
     }
   ),
   new RxWeb.Middleware(
@@ -122,7 +122,8 @@ client.middlewares = [
     task => {
       console.log('TEST_PROMISE_FAIL completed.');
       log('TEST_PROMISE_FAIL completed.');
-      log(`Redux state is ${JSON.stringify(task.store.getState(), null, '  ')}`); 
+      console.log(task);
+      // log(`Redux state is ${JSON.stringify(task.store.getState(), null, '  ')}`); 
     }
   ), 
   new RxWeb.Middleware(
