@@ -23,7 +23,7 @@ export class rxweb$Observer {
     this._observer = o$
       .mergeMap((task: rxweb$Task) =>
         Observable.fromPromise(promiseFunc(task))
-          .map(data => {
+          .mergeMap(data => {
             // Update store with <action.type>_SUCCESS.
             const resp = { ...task, ...data };
             if (task.done)
