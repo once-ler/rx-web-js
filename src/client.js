@@ -53,7 +53,7 @@ class rxweb$Client extends rxweb$Base {
     };
   }
 
-  applyReduxMiddleware() {
+  applyReduxMiddlewares() {
     for (const r of this.middlewares) {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
         if (action.type !== r.type) return reduxDispatch(action);
@@ -77,20 +77,20 @@ class rxweb$Client extends rxweb$Base {
     }
   }
 
-  getReduxMiddleware() {
+  getReduxMiddlewares() {
     return this.reduxMiddlewares;
   }
 
   getReduxReducers() {
     return this.reduxReducers;
-  } 
+  }
 
   start() {
     // Depending on the observer's filter function,
     // each observer will act or ignore any incoming web request.
     this.makeObserversAndSubscribeFromMiddlewares();
 
-    this.applyReduxMiddleware();
+    this.applyReduxMiddlewares();
   }
 }
 
