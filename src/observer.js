@@ -21,8 +21,11 @@ export class rxweb$Observer {
     }
 
     this._observer = o$
-      .mergeMap((task: rxweb$Task) =>
-        Observable.fromPromise(promiseFunc(task))
+      .mergeMap((task: rxweb$Task) => {
+        if (task.init)
+          task.init();
+
+        return Observable.fromPromise(promiseFunc(task))
           .mergeMap(data => {
             // Update store with <action.type>_SUCCESS.
             const resp = { ...task, ...data };
@@ -39,7 +42,7 @@ export class rxweb$Observer {
               task.error(resp);
             return Observable.of(resp);
           })
-      );
+      });
   }
 
   observable(): Observable<rxweb$Task> {

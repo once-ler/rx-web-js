@@ -48,6 +48,7 @@ export type rxweb$Task = {
   request: rxweb$Request;
   response: rxweb$Response;
   store: MiddlewareAPI<Redux$State, Redux$Action>;
+  init: () => Redux$Dispatch;
   done: (data: Redux$Action) => Redux$Dispatch;
   error: (data: Redux$Action) => Redux$Dispatch;
 }

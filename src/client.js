@@ -13,7 +13,6 @@ import type {
   Redux$Middleware,
   Redux$Dispatch
 } from './rxweb';
-import camelCase from 'lodash/camelCase';
 import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
 
@@ -29,7 +28,7 @@ class rxweb$Client extends rxweb$Base {
 
   createReduxReducer(_type: string) {
     return {
-      [camelCase(_type)]: (state = {}, action) => {
+      [_type]: (state = {}, action) => {
         switch (action.type) {
           case `${_type}_INIT`:
             return {
@@ -62,6 +61,7 @@ class rxweb$Client extends rxweb$Base {
         this.next({
           ...action,
           next: this.next,
+          init: () => dispatch({ ...getState(), data, type: `${action.type}_INIT` }),
           done: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_SUCCESS` }),
           error: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_ERROR` }),
           store: { dispatch, getState }
