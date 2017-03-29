@@ -107,6 +107,11 @@ client.middlewares = [
     task => task.error({ ...task.data, error: 'From ANOTHER_GENERATE_REDUCER'})
   ),
   new RxWeb.Middleware(
+    'TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC',
+    task => axios.get('http://echo.jsontest.com/hello/world/foo/bar'),
+    task => { log(`TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC is ${JSON.stringify(task.store.getState().TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC.data.data, null, '  ')}`); }
+  ),
+  new RxWeb.Middleware(
     'TEST_PROMISE',
     // task => (new Promise(resolve => { setTimeout(() => { task.data = { message: 'Should succeed.' }; log('TEST_PROMISE set time.'); return resolve(task); }, 1000); })),
     task => axios.get('http://date.jsontest.com/'),
@@ -127,13 +132,17 @@ client.middlewares = [
     }
   ), 
   new RxWeb.Middleware(
-    'MOCK_FETCH',
+    'mockFetch',
     task => {
       console.log('I am subscribing to MOCK_FETCH.');
       log('I am subscribing to MOCK_FETCH.');
 
       async function asideEffect() {
-        const { store, data, next, done } = task;
+        const { store, data, next, done, init } = task;
+
+        init();
+
+        log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
 
         const promise = new Promise(resolve => {
           setTimeout(() => {
@@ -193,7 +202,8 @@ const store = Redux.createStore(reducers, { theme: greenTheme }, Redux.applyMidd
 
 log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
 
-store.dispatch({type: 'MOCK_FETCH', data: { startTest: true }});
+store.dispatch({type: 'TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC'});
+store.dispatch({type: 'mockFetch', data: { startTest: true }});
 store.dispatch({type: 'ANOTHER_GENERATE_REDUCER', data: {message: 'hey'}});
 store.dispatch({type: 'GENERATE_REDUCER', data: {message: 'hey again'}});
 store.dispatch({type: 'TEST_PROMISE', data: {message: 'testing a promise'}});

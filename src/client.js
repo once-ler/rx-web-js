@@ -32,8 +32,7 @@ class rxweb$Client extends rxweb$Base {
         switch (action.type) {
           case `${_type}_INIT`:
             return {
-              ...state,
-              data: action.data
+              ...state
             };
           case `${_type}_SUCCESS`:
             return {
@@ -61,7 +60,7 @@ class rxweb$Client extends rxweb$Base {
         this.next({
           ...action,
           next: this.next,
-          init: () => dispatch({ ...getState(), data, type: `${action.type}_INIT` }),
+          init: () => dispatch({ ...getState(), type: `${action.type}_INIT` }),
           done: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_SUCCESS` }),
           error: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_ERROR` }),
           store: { dispatch, getState }
