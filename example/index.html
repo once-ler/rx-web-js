@@ -107,9 +107,39 @@ client.middlewares = [
     task => task.error({ ...task.data, error: 'From ANOTHER_GENERATE_REDUCER'})
   ),
   new RxWeb.Middleware(
+    'testGraphql',
+    task => axios.post('http://graphql-swapi.parseapp.com/',
+      {
+        query: `
+          {
+            allStarships(first: 7) {
+              edges {
+                node {
+                  ...starshipFragment
+                }
+              }
+            }
+          }
+
+          fragment starshipFragment on Starship {
+            id
+            name
+            model 
+            costInCredits
+            pilotConnection { edges { node { ...pilotFragment }}}
+          }
+          fragment pilotFragment on Person {
+            name
+            homeworld { name }
+          }
+        `
+      }),
+    task => log(task.store.getState().testGraphql)
+  ),
+  new RxWeb.Middleware(
     'TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC',
     task => axios.get('http://echo.jsontest.com/hello/world/foo/bar'),
-    task => { log(`TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC is ${JSON.stringify(task.store.getState().TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC.data.data, null, '  ')}`); }
+    task => { log(`TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC is ${JSON.stringify(task.store.getState().TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC.payload.data, null, '  ')}`); }
   ),
   new RxWeb.Middleware(
     'TEST_PROMISE',
@@ -202,6 +232,7 @@ const store = Redux.createStore(reducers, { theme: greenTheme }, Redux.applyMidd
 
 log(`Redux state is ${JSON.stringify(store.getState(), null, '  ')}`);
 
+store.dispatch({type: 'testGraphql'});
 store.dispatch({type: 'TEST_PROMISE_WITH_DUMMY_SUBSCRIBE_FUNC'});
 store.dispatch({type: 'mockFetch', data: { startTest: true }});
 store.dispatch({type: 'ANOTHER_GENERATE_REDUCER', data: {message: 'hey'}});

@@ -37,12 +37,12 @@ class rxweb$Client extends rxweb$Base {
           case `${_type}_SUCCESS`:
             return {
               ...state,
-              data: action.data
+              payload: action.payload
             };
           case `${_type}_ERROR`:
             return {
               ...state,
-              data: action.data
+              payload: action.payload
             };
           default:
             return state;
@@ -61,8 +61,8 @@ class rxweb$Client extends rxweb$Base {
           ...action,
           next: this.next,
           init: () => dispatch({ ...getState(), type: `${action.type}_INIT` }),
-          done: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_SUCCESS` }),
-          error: (data: Redux$Action) => dispatch({ ...getState(), data, type: `${action.type}_ERROR` }),
+          done: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${action.type}_SUCCESS` }),
+          error: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${action.type}_ERROR` }),
           store: { dispatch, getState }
         });
         return reduxDispatch({...getState(), ...action});
