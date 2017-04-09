@@ -41,7 +41,7 @@ export class rxweb$Observer {
             // axios.Response: result.data
             if (typeof result.headers === 'object' && typeof result.data === 'object') {
               if (Object.prototype.toString.call(result.data) === '[object Array]')
-                resp = { ...task, ...result };
+                resp = { ...task, data: result };
               else
                 resp = { ...task, ...result.data };
               
