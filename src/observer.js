@@ -26,22 +26,62 @@ export class rxweb$Observer {
           task.init();
 
         return Observable.fromPromise(promiseFunc(task))
-          .mergeMap(data => {
+          .mergeMap(result => {
             // Update store with <action.type>_SUCCESS.
-            const resp = { ...task, ...data };
-            if (task.done)
-              task.done(resp);
-            return Observable.of(resp);
+            let resp;
+            const finalize = () => {
+              const {data, errors, ...rest} = resp;
+              if (task.done && typeof errors === 'undefined')
+                task.done(typeof data === 'object' ? {...rest, ...data} : resp);
+
+              if (typeof errors === 'object' && task.error)
+                task.error({...rest, errors});
+            };
+
+            // axios.Response: result.data
+            if (typeof result.headers === 'object' && typeof result.data === 'object') {
+              if (Object.prototype.toString.call(result.data) === '[object Array]')
+                resp = { ...task, ...result };
+              else
+                resp = { ...task, ...result.data };
+              
+              finalize();
+              return Observable.of(resp);
+            }
+
+            // fetch.Response: result.json
+            if (result instanceof Response) {
+              // https://developer.mozilla.org/en-US/docs/Web/API/Body/bodyUsed
+              const clonedResult = result.clone();
+
+              result.json()
+                .then(d => {
+                  resp = { ...task, data: d };
+                  finalize();
+                });
+
+              // result.json() returns a promise; so we return Observable of original result to next Observer.              
+              return Observable.of({...task, response: clonedResult});
+            } else {
+              // Default
+              resp = { ...task, data: result };
+              finalize();
+              return Observable.of(resp);
+            }        
           })
           .catch((e) => {
             // Update store with <action.type>_ERROR.
             // For axios: https://github.com/mzabriskie/axios/blob/master/UPGRADE_GUIDE.md#error-handling
+            let resp;
             const { message, code, response } = e;
-            const resp = { ...task, ...e, message, code, response };
+            if (typeof message !== undefined || typeof response !== undefined)
+              resp = {...task, message, code, response};
+            else
+              resp = { ...task, ...e };
             if (task.error)
               task.error(resp);
             return Observable.of(resp);
-          })
+          });
       });
   }
 
