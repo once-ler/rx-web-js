@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { font-family: Georgia, serif; background: #f7f7ba; }
+h1 { color: rosybrown; margin: 0 10px;}
+.logger { background: #b6c0c8; margin: 10px;}
+.logger li {border-style: none none dashed none; border-width: 2px;  border-color: #d3d3d3;}
+</style>
+</head>
+<body>
+<h1>Example</h1>
+<ul id="logger" class="logger"></ul>
+<div id="root"></div>
+<script src="polyfill.min.js"></script>
+<script src="browser.min.js"></script>
+<script src="react.min.js"></script>
+<script src="react-dom.min.js"></script>
+<script src="redux.min.js"></script>
+<script src="react-redux.min.js"></script>
+<script src="axios.min.js"></script>
+<script src="fuse.min.js"></script>
+<script src="react-tiny-virtual-list.min.js"></script>
+<script src="../dist/rx-web.min.js"></script>
+<script type="text/babel" >
+  window.log = (text) => {
+    const li = document.createElement('LI');
+    const pre = document.createElement('PRE');
+    li.appendChild(pre);
+    const textEl = document.createTextNode(`${new Date().toISOString()} - ${text}`);
+    pre.appendChild(textEl);
+    document.getElementById('logger').appendChild(li);
+  };
+</script>
+<script type="text/babel" src="fuzzy-search.js">
+</script>
+</body>
+</html>
