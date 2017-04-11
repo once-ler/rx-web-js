@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "rm -rf dist/* npm run lint && babel src --ignore __tests__ --out-dir dist",
-    "build:umd:browser": "webpack --config webpack/umd.browser.config.js",
+    "build:umd:browser": "webpack --config webpack/umd.browser.config.js && cp dist/rx-web.min.js example",
     "build:umd:node": "webpack --config webpack/umd.node.config.js",
     "check": "flow check",
     "check-cover": "for file in {src/*.js,src/**/*.js}; do echo $file; flow coverage $file; done",

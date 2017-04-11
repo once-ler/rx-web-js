@@ -56,7 +56,11 @@ export class rxweb$Observer {
 
               result.json()
                 .then(d => {
-                  resp = { ...task, data: d };
+                  if (Object.prototype.toString.call(d) === '[object Array]')
+                    resp = { ...task, data: d };
+                  else
+                    resp = { ...task, ...d };
+                  
                   finalize();
                 });
 

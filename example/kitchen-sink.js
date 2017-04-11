@@ -139,7 +139,7 @@ client.middlewares = [
         headers: {
           'Content-Type': 'application/json'
         },
-        body: {
+        body: JSON.stringify({
           query: `
             {
               hn {
@@ -150,7 +150,7 @@ client.middlewares = [
               }
             }
           `
-        }
+        })
       }
     ),
     task => {
