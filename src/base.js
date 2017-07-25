@@ -17,8 +17,8 @@ export class rxweb$Base {
     this.sub.get().next(value);
   }
   
-  constructor() {
-    this.sub = new rxweb$Subject();
+  constructor(props: Object = {}) {
+    this.sub = new rxweb$Subject(props);
 
     // https://github.com/facebook/flow/issues/1397
     (this: any).next = this.next.bind(this);

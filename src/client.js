@@ -22,8 +22,8 @@ class rxweb$Client extends rxweb$Base {
   
   store: Redux$Store;
 
-  constructor() {
-    super();
+  constructor(props: Object = {}) {
+    super(props);
   }
 
   createReduxReducer(_type: string) {
