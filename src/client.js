@@ -1,6 +1,6 @@
 /* @flow */
 /* eslint no-unused-vars: 0, max-len: 0, flowtype/no-weak-types: 0, no-unused-expressions: 0, curly: 0, no-console: 0 */
-import type { MiddlewareAPI, Reducer } from 'redux'
+import type { MiddlewareAPI, Reducer } from 'redux';
 import type {
   rxweb$Task,
   rxweb$NextAction,
@@ -15,6 +15,8 @@ import type {
 } from './rxweb';
 import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
+
+type FuncArg = {useWebSocket?: boolean, url?: string};
 
 class rxweb$Client extends rxweb$Base {
   reduxMiddlewares: Array<Redux$Middleware> = [];

@@ -20,7 +20,7 @@ client.start();
 const webSocket = (state = {}, action) => {
   console.log(action)
   switch (action.type) {
-    case 'WEBSOCKET':
+    case 'webSocket':
       return {
         ...state,
         data: action.data

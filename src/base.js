@@ -8,7 +8,7 @@ export class rxweb$Base {
   sub: rxweb$Subject;
   middlewares: Array<rxweb$Middleware> = [];
   routes: Array<rxweb$Route> = [];
-  
+ 
   getSubject(): rxweb$Subject {
     return this.sub;
   }
@@ -17,8 +17,8 @@ export class rxweb$Base {
     this.sub.get().next(value);
   }
   
-  constructor(props: Object = {}) {
-    this.sub = new rxweb$Subject(props);
+  constructor({useWebSocket, url}: FuncArg = {}) {
+    this.sub = new rxweb$Subject();
 
     // https://github.com/facebook/flow/issues/1397
     (this: any).next = this.next.bind(this);
