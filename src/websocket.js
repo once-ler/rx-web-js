@@ -59,4 +59,4 @@ const middleware = (url: string) => {
   };
 };
 
-export { reducer as wsReducer, middleware as wsMiddleware };
+export { reducer as WebSocketReducer, middleware as WebSocketMiddleware };
