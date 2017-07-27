@@ -17,7 +17,7 @@ export class rxweb$Base {
     this.sub.get().next(value);
   }
   
-  constructor({useWebSocket, url}: FuncArg = {}) {
+  constructor() {
     this.sub = new rxweb$Subject();
 
     // https://github.com/facebook/flow/issues/1397
