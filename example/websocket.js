@@ -5,7 +5,7 @@ const url = "wss://echo.websocket.org/";
 const client = new RxWeb.Client();
 
 const WebSocketMiddleware = new RxWeb.Middleware(
-  task => task.type === 'WEBSOCKET',
+  task => task.type === 'WEBSOCKET_PAYLOAD',
   task => {
     console.log(task);
     console.log(task.data.message);
@@ -17,20 +17,10 @@ client.middlewares = [WebSocketMiddleware];
 
 client.start();
 
-const webSocket = (state = {}, action) => {
-  console.log(action)
-  switch (action.type) {
-    case 'webSocket':
-      return {
-        ...state,
-        data: action.data
-      };
-    default:
-      return state;
-  }
-};
-
-const middlewares = client.getReduxMiddlewares();
+const webSocket = RxWeb.WebSocketReducer;
+const webSocketMiddleware = RxWeb.WebSocketMiddleware(url);
+const rxMiddlewares = client.getReduxMiddlewares();
+const middlewares = [webSocketMiddleware].concat(rxMiddlewares);
 const rxReducers = client.getReduxReducers();
 const reducers = Redux.combineReducers({
   webSocket,
@@ -39,15 +29,14 @@ const reducers = Redux.combineReducers({
 
 const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(...middlewares));
 
-console.log(client.getSubject().sub.next(JSON.stringify({message: 'hello'})));
-
 store.dispatch({
-  type: 'WEBSOCKET',
-  data: {
-    message: 'hey'
+  type: 'WEBSOCKET_SEND',
+  payload: {
+    op: 'hello'
   }
 });
 
+/*
 let subject = Rx.Observable.webSocket(url);
 subject
   .retry()
@@ -57,3 +46,4 @@ subject
    () => console.log('complete')
  );
 subject.next(JSON.stringify({ op: 'hello' }));
+*/
