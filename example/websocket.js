@@ -5,7 +5,7 @@ const webSocketUrl = 'wss://echo.websocket.org/';
 const client = new RxWeb.Client({webSocketUrl});
 
 const WebSocketMiddleware = new RxWeb.Middleware(
-  'WEBSOCKET_PAYLOAD',
+  task => task.type === 'WEBSOCKET_PAYLOAD',
   task => {
     console.log(task);
     log(`Task ${JSON.stringify(task, null, '  ')}`);

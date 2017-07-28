@@ -16,6 +16,7 @@ const reducer = (state: any = {}, action: any) => {
         payload: action.payload
       };
     case 'WEBSOCKET_PAYLOAD':
+      console.log('WEBSOCKET_PAYLOAD');
       return {
         ...state,
         payload: action.payload
@@ -30,32 +31,34 @@ const reducer = (state: any = {}, action: any) => {
   }
 };
 
-const middleware = (url: ?string) => {
-
+const middleware = (next) => (url: ?string) => {
+  console.log(next);
   let websocket: WebSocketSubject<any>;
 
-  return (api: MiddlewareAPI<any, any>) => (next: any) => (action: any) => {
+  return (api: MiddlewareAPI<any, any>) => (reduxDispatch: any) => (action: any) => {
     switch (action.type) {
       case 'WEBSOCKET_CONNECT':
+        console.log('WEBSOCKET_CONNECT');
         if (!websocket)
           websocket = webSocket(url);
 
         websocket
           .retry()
           .subscribe(
-            msg => next({ type: 'WEBSOCKET_PAYLOAD', payload: msg }),
-            err => next({ type: 'WEBSOCKET_ERROR', payload: err })
+            msg => { next({ type: 'WEBSOCKET_PAYLOAD', payload: msg }); reduxDispatch({ type: 'WEBSOCKET_PAYLOAD', payload: msg }); },
+            err => reduxDispatch({ type: 'WEBSOCKET_ERROR', payload: err })
           );
 
-        return next(action);
+        return reduxDispatch(action);
       case 'WEBSOCKET_SEND':
+        console.log('WEBSOCKET_SEND');
         websocket.next(JSON.stringify(action.payload));
-        return next(action);
+        return reduxDispatch(action);
       case 'WEBSOCKET_DISCONNECT':
         websocket.unsubscribe();
-        return next(action);
+        return reduxDispatch(action);
       default:
-        return next(action);
+        return reduxDispatch(action);
     }
   };
 };

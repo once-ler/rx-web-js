@@ -91,7 +91,7 @@ class rxweb$Client extends rxweb$Base {
   createWebSocketClient() {
     if (!this.webSocketUrl) return false;
     this.reduxReducers = {...this.reduxReducers, webSocket };
-    const webSocketMiddleware = WebSocketMiddleware(this.webSocketUrl);
+    const webSocketMiddleware = WebSocketMiddleware(this.next)(this.webSocketUrl);
     this.reduxMiddlewares.push(webSocketMiddleware);
     return true;
   }
