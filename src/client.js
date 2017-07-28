@@ -15,15 +15,19 @@ import type {
 } from './rxweb';
 import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
-// type FuncArg = {useWebSocket?: boolean, url?: string};
+import { WebSocketReducer, WebSocketMiddleware } from './websocket';
+
+type FuncArg = {webSocketUrl?: string};
 
 class rxweb$Client extends rxweb$Base {
   reduxMiddlewares: Array<Redux$Middleware> = [];
   reduxReducers: {[reducerKey: string]: Reducer<Redux$State, Redux$Action>} = {};
   store: Redux$Store;
+  webSocketUrl: ?string = null;
 
-  constructor(props: Object = {}) {
-    super(props);
+  constructor({webSocketUrl}: FuncArg = {}) {
+    super({webSocketUrl});
+    this.webSocketUrl = webSocketUrl;
   }
 
   createReduxReducer(_type: string) {
@@ -84,12 +88,21 @@ class rxweb$Client extends rxweb$Base {
     return this.reduxReducers;
   }
 
+  createWebSocketClient() {
+    if (!this.webSocketUrl) return false;
+    this.reduxReducers = Object.assign(this.reduxReducers, { webSocket: WebSocketReducer });
+    this.reduxMiddlewares.push(WebSocketMiddleware);
+    return true;
+  }
+
   start() {
     // Depending on the observer's filter function,
     // each observer will act or ignore any incoming web request.
     this.makeObserversAndSubscribeFromMiddlewares();
 
     this.applyReduxMiddlewares();
+
+    this.createWebSocketClient();
   }
 }
 

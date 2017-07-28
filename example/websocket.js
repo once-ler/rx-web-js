@@ -1,8 +1,8 @@
 
-const url = "wss://echo.websocket.org/";
+const webSocketUrl = "wss://echo.websocket.org/";
 
 // const client = new RxWeb.Client({useWebSocket: true, url});
-const client = new RxWeb.Client();
+const client = new RxWeb.Client({webSocketUrl});
 
 const WebSocketMiddleware = new RxWeb.Middleware(
   'WEBSOCKET_PAYLOAD',
@@ -16,8 +16,10 @@ client.middlewares = [WebSocketMiddleware];
 
 client.start();
 
+console.log(client);
+
 const webSocket = RxWeb.WebSocketReducer;
-const webSocketMiddleware = RxWeb.WebSocketMiddleware(url);
+const webSocketMiddleware = RxWeb.WebSocketMiddleware(webSocketUrl);
 const rxMiddlewares = client.getReduxMiddlewares();
 const middlewares = [webSocketMiddleware].concat(rxMiddlewares);
 const rxReducers = client.getReduxReducers();
