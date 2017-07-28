@@ -23,4 +23,3 @@ export {
 
 export { Server } from './server';
 export { Client } from './client';
-export { WebSocketReducer, WebSocketMiddleware } from './websocket';

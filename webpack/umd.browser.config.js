@@ -34,7 +34,7 @@ plugins.push(
 
 var config = {
   devtool: 'cheap-module-source-map',
-  entry: [path.resolve(BASE_DIR, 'src/client.js')],
+  entry: { client: path.resolve(BASE_DIR, 'src/client.js') },
   output: {
     path: path.join(__dirname, '/../dist'),
     publicPath: 'dist/',

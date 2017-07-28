@@ -4,7 +4,6 @@
   flowtype/union-intersection-spacing: 0,
   max-len: 0
 */
-import { Observable } from 'rxjs/Observable';
 import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch, MiddlewareAPI } from 'redux';
 import { rxweb$Subject } from './subject';
 import { rxweb$Observer } from './observer';
@@ -51,7 +50,7 @@ export type rxweb$Task = {
   init: () => Redux$Dispatch;
   done: (data: Redux$Action) => Redux$Dispatch;
   error: (data: Redux$Action) => Redux$Dispatch;
-}
+};
 
 export class rxweb$Middleware {
   constructor(...params: any[]) {

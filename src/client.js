@@ -15,13 +15,11 @@ import type {
 } from './rxweb';
 import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
-
-type FuncArg = {useWebSocket?: boolean, url?: string};
+// type FuncArg = {useWebSocket?: boolean, url?: string};
 
 class rxweb$Client extends rxweb$Base {
   reduxMiddlewares: Array<Redux$Middleware> = [];
   reduxReducers: {[reducerKey: string]: Reducer<Redux$State, Redux$Action>} = {};
-  
   store: Redux$Store;
 
   constructor(props: Object = {}) {
@@ -104,6 +102,8 @@ export {
   rxweb$Observer as Observer,
   rxweb$Task as Task
 } from './rxweb';
+
+export { WebSocketReducer, WebSocketMiddleware } from './websocket';
 
 // flow types
 declare module 'rxweb' {
