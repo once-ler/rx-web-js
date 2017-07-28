@@ -1,7 +1,8 @@
 /* @flow */
 import type { MiddlewareAPI } from 'redux';
-import webSocket from 'rxjs/observable/dom/webSocket';
-import WebSocketSubject from 'rxjs/observable/dom/WebSocketSubject';
+import { webSocket } from 'rxjs/observable/dom/webSocket';
+import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
+import 'rxjs/add/operator/retry';
 
 const reducer = (state: any = {}, action: any) => {
   switch (action.type) {
@@ -12,12 +13,12 @@ const reducer = (state: any = {}, action: any) => {
     case 'WEBSOCKET_SEND':
       return {
         ...state,
-        data: action.payload
+        payload: action.payload
       };
     case 'WEBSOCKET_PAYLOAD':
       return {
         ...state,
-        data: action.payload
+        payload: action.payload
       };
     case 'WEBSOCKET_ERROR':
       return {
@@ -37,13 +38,13 @@ const middleware = (url: string) => {
     switch (action.type) {
       case 'WEBSOCKET_CONNECT':
         if (!websocket)
-          websocket = webSocket.create(url);
+          websocket = webSocket(url);
 
         websocket
           .retry()
           .subscribe(
-            msg => api.dispatch({ type: 'WEBSOCKET_PAYLOAD', payload: JSON.parse(msg) }),
-            err => api.dispatch({ type: 'WEBSOCKET_ERROR', payload: err })
+            msg => next({ type: 'WEBSOCKET_PAYLOAD', payload: msg }),
+            err => next({ type: 'WEBSOCKET_ERROR', payload: err })
           );
 
         return next(action);

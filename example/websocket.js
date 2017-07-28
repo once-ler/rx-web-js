@@ -5,11 +5,10 @@ const url = "wss://echo.websocket.org/";
 const client = new RxWeb.Client();
 
 const WebSocketMiddleware = new RxWeb.Middleware(
-  task => task.type === 'WEBSOCKET_PAYLOAD',
+  'WEBSOCKET_PAYLOAD',
   task => {
     console.log(task);
-    console.log(task.data.message);
-    log(`Task ${task.data.message}`);
+    log(`Task ${JSON.stringify(task, null, '  ')}`);
   }
 );
 
@@ -29,10 +28,11 @@ const reducers = Redux.combineReducers({
 
 const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(...middlewares));
 
+store.dispatch({type: 'WEBSOCKET_CONNECT'});
 store.dispatch({
   type: 'WEBSOCKET_SEND',
   payload: {
-    op: 'hello'
+    another: 'hello'
   }
 });
 
