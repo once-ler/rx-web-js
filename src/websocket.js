@@ -30,7 +30,7 @@ const reducer = (state: any = {}, action: any) => {
   }
 };
 
-const middleware = (url: string) => {
+const middleware = (url: ?string) => {
 
   let websocket: WebSocketSubject<any>;
 

@@ -15,7 +15,7 @@ import type {
 } from './rxweb';
 import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
-import { WebSocketReducer, WebSocketMiddleware } from './websocket';
+import { WebSocketReducer as webSocket, WebSocketMiddleware } from './websocket';
 
 type FuncArg = {webSocketUrl?: string};
 
@@ -26,7 +26,7 @@ class rxweb$Client extends rxweb$Base {
   webSocketUrl: ?string = null;
 
   constructor({webSocketUrl}: FuncArg = {}) {
-    super({webSocketUrl});
+    super();
     this.webSocketUrl = webSocketUrl;
   }
 
@@ -90,8 +90,9 @@ class rxweb$Client extends rxweb$Base {
 
   createWebSocketClient() {
     if (!this.webSocketUrl) return false;
-    this.reduxReducers = Object.assign(this.reduxReducers, { webSocket: WebSocketReducer });
-    this.reduxMiddlewares.push(WebSocketMiddleware);
+    this.reduxReducers = {...this.reduxReducers, webSocket };
+    const webSocketMiddleware = WebSocketMiddleware(this.webSocketUrl);
+    this.reduxMiddlewares.push(webSocketMiddleware);
     return true;
   }
 
