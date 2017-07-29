@@ -1,4 +1,5 @@
 /* @flow */
+import type { rxweb$Task, Redux$Action } from './rxweb';
 import type { MiddlewareAPI } from 'redux';
 import { webSocket } from 'rxjs/observable/dom/webSocket';
 import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
@@ -31,22 +32,37 @@ const reducer = (state: any = {}, action: any) => {
   }
 };
 
-const middleware = (next) => (url: ?string) => {
-  console.log(next);
+const middleware = (next: (value: any) => void) => (url: ?string) => {
   let websocket: WebSocketSubject<any>;
+  
+  type RespondFunc = (string, any) => (() => mixed);
 
   return (api: MiddlewareAPI<any, any>) => (reduxDispatch: any) => (action: any) => {
     switch (action.type) {
       case 'WEBSOCKET_CONNECT':
-        console.log('WEBSOCKET_CONNECT');
         if (!websocket)
           websocket = webSocket(url);
+
+        const { dispatch, getState } = api;
+        const respond: RespondFunc = (actionType: string, msg: any) => {
+          const task: rxweb$Task = {
+            type: actionType,
+            data: msg,
+            next,
+            init: () => dispatch({ ...getState(), type: `${actionType}_INIT` }),
+            done: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${actionType}_SUCCESS` }),
+            error: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${actionType}_ERROR` }),
+            store: { dispatch, getState }
+          };          
+          next(task);
+          return reduxDispatch(task);
+        };
 
         websocket
           .retry()
           .subscribe(
-            msg => { next({ type: 'WEBSOCKET_PAYLOAD', payload: msg }); reduxDispatch({ type: 'WEBSOCKET_PAYLOAD', payload: msg }); },
-            err => reduxDispatch({ type: 'WEBSOCKET_ERROR', payload: err })
+            msg => respond('WEBSOCKET_PAYLOAD', msg),
+            err => respond('WEBSOCKET_ERROR', err)
           );
 
         return reduxDispatch(action);
