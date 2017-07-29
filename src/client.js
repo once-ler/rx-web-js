@@ -58,6 +58,15 @@ class rxweb$Client extends rxweb$Base {
     };
   }
 
+  handleWebSocketResponse(next: any => void, reduxDispatch: any, nextTask: rxweb$Task, getState: any): WebSocketResponseHandler {
+    return (actionType: string, msg: any) => {
+      const newAction: Object = {type: actionType, data: msg};
+      const newProp: rxweb$Task = {...nextTask, ...newAction };
+      next(newProp);
+      return reduxDispatch({...getState(), ...newAction});
+    };
+  }
+
   applyReduxMiddlewares() {
     for (const r of this.middlewares) {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
@@ -75,12 +84,7 @@ class rxweb$Client extends rxweb$Base {
           store: { dispatch, getState }
         };
 
-        const handleWsResponse: WebSocketResponseHandler = (actionType: string, msg: any) => {
-          const newAction: Object = {type: actionType, data: msg};
-          const newProp: rxweb$Task = {...nextTask, ...newAction };
-          next(newProp);
-          return reduxDispatch({...getState(), ...newAction});
-        };
+        const handleWsResponse = this.handleWebSocketResponse(this.next, reduxDispatch, nextTask, getState);
 
         switch (action.type) {
           case 'WEBSOCKET_CONNECT':
