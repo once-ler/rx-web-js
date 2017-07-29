@@ -16,10 +16,9 @@ import type {
 import { webSocket } from 'rxjs/observable/dom/webSocket';
 import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
-import { WebSocketReducer, WebSocketMiddleware } from './websocket';
 import 'rxjs/add/operator/retry';
+import {WebSocketReducer} from './websocket';
 
-// type FuncArg = {webSocketUrl?: string};
 type WebSocketResponseHandler = (string, any) => (() => mixed);
 
 class rxweb$Client extends rxweb$Base {
@@ -28,9 +27,8 @@ class rxweb$Client extends rxweb$Base {
   store: Redux$Store;
   webSocketUrl: ?string = null;
 
-  constructor({webSocketUrl}: FuncArg = {}) {
+  constructor() {
     super();
-    this.webSocketUrl = webSocketUrl;
   }
 
   createReduxReducer(_type: string) {
@@ -72,12 +70,11 @@ class rxweb$Client extends rxweb$Base {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
         if (action.type !== r.type) return reduxDispatch(action);
         
-        const next = this.next;
         const { dispatch, getState } = api;
         
         const nextTask: rxweb$Task = {
           ...action,
-          next,
+          next: this.next,
           init: () => dispatch({ ...getState(), type: `${action.type}_INIT` }),
           done: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${action.type}_SUCCESS` }),
           error: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${action.type}_ERROR` }),
@@ -90,19 +87,26 @@ class rxweb$Client extends rxweb$Base {
           case 'WEBSOCKET_CONNECT':
             if (!this.websocket)
               this.websocket = webSocket(action.data.url);
-
+              
               this.websocket
+                .catch(e => { console.log(e); handleWsResponse('WEBSOCKET_ERROR', `Error conecting to ${e.target.url} timestamp: ${e.timeStamp}`); })
                 .retry()
                 .subscribe(
                   msg => handleWsResponse('WEBSOCKET_PAYLOAD', msg),
                   err => handleWsResponse('WEBSOCKET_ERROR', err)
                 );
             break;
+          case 'WEBSOCKET_SEND':
+            console.log('WEBSOCKET_SEND');
+            this.websocket.next(JSON.stringify(action.data));
+            break;
+          case 'WEBSOCKET_DISCONNECT':
+            this.websocket.unsubscribe();
+            break;
           default:
             break;
         }
-
-        next(nextTask);
+        this.next(nextTask);
         return reduxDispatch({...getState(), ...action});
       };
       this.reduxMiddlewares.push(rxwebMiddleware);
@@ -123,11 +127,22 @@ class rxweb$Client extends rxweb$Base {
   }
 
   createWebSocketClient() {
-    if (!this.webSocketUrl) return false;
-    this.reduxReducers = {...this.reduxReducers, webSocket };
-    const webSocketMiddleware = WebSocketMiddleware(this.next)(this.webSocketUrl);
-    this.reduxMiddlewares.push(webSocketMiddleware);
-    return true;
+    this.reduxReducers = {...this.reduxReducers, webSocket: WebSocketReducer };
+    
+    this.middlewares = [
+      new rxweb$Middleware(
+        'WEBSOCKET_CONNECT',
+        task => task
+      ),
+      new rxweb$Middleware(
+        'WEBSOCKET_SEND',
+        task => task
+      ),
+      new rxweb$Middleware(
+        'WEBSOCKET_DISCONNECT',
+        task => task
+      )
+    ].concat(this.middlewares);
   }
 
   start() {
@@ -135,9 +150,9 @@ class rxweb$Client extends rxweb$Base {
     // each observer will act or ignore any incoming web request.
     this.makeObserversAndSubscribeFromMiddlewares();
 
-    this.applyReduxMiddlewares();
-
     this.createWebSocketClient();
+
+    this.applyReduxMiddlewares();
   }
 }
 
@@ -150,8 +165,6 @@ export {
   rxweb$Observer as Observer,
   rxweb$Task as Task
 } from './rxweb';
-
-export { WebSocketReducer, WebSocketMiddleware } from './websocket';
 
 // flow types
 declare module 'rxweb' {

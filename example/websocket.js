@@ -1,59 +1,41 @@
+const url = 'wss://echo.websocket.org/';
 
-const webSocketUrl = 'wss://echo.websocket.org/';
+const client = new RxWeb.Client();
 
-// const client = new RxWeb.Client({useWebSocket: true, url});
-const client = new RxWeb.Client({webSocketUrl});
-
-const WebSocketMiddleware = new RxWeb.Middleware(
+const WebSocketPayloadMiddleware = new RxWeb.Middleware(
   task => task.type === 'WEBSOCKET_PAYLOAD',
   task => {
-    console.log(task);
-    log(`Task ${JSON.stringify(task, null, '  ')}`);
+    log(`WebSocket Payload ${JSON.stringify(task, null, '  ')}`);
+    // dispatch may occur on different frame?  Immdiately calling getState does not get expected results.
+    setTimeout(() => log(`Store ${JSON.stringify(task.store.getState(), null, '  ')}`), 100);
   }
 );
 
-client.middlewares = [ WebSocketMiddleware ];
+const WebSocketErrorMiddleware = new RxWeb.Middleware(
+  task => task.type === 'WEBSOCKET_ERROR',
+  task => {
+    console.log(task);
+    log(`WebSocket Error ${JSON.stringify(task, null, '  ')}`);
+    log(`Store ${JSON.stringify(task.store.getState(), null, '  ')}`);
+  }
+);
+
+client.middlewares = [ WebSocketPayloadMiddleware, WebSocketErrorMiddleware ];
 
 client.start();
 
-console.log(client);
-
-const webSocket = RxWeb.WebSocketReducer;
-const webSocketMiddleware = RxWeb.WebSocketMiddleware(webSocketUrl);
 const rxMiddlewares = client.getReduxMiddlewares();
-const middlewares = [ webSocketMiddleware ].concat(rxMiddlewares);
 
-console.log(middlewares);
 const rxReducers = client.getReduxReducers();
-
-/*
-const reducers = Redux.combineReducers({
-  webSocket,
-  ...rxReducers
-});
-*/
-
-console.log([{...rxReducers}, webSocket]);
+console.log(rxMiddlewares);
 const reducers = Redux.combineReducers({...rxReducers});
-// const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(...middlewares));
 const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(...rxMiddlewares));
 
-store.dispatch({type: 'WEBSOCKET_CONNECT'});
+store.dispatch({type: 'WEBSOCKET_CONNECT', data: { url }});
+
 store.dispatch({
   type: 'WEBSOCKET_SEND',
-  payload: {
+  data: {
     another: 'hello'
   }
 });
-
-/*
-let subject = Rx.Observable.webSocket(url);
-subject
-  .retry()
-  .subscribe(
-   (msg) => console.log('message received: ' + msg),
-   (err) => console.log(err),
-   () => console.log('complete')
- );
-subject.next(JSON.stringify({ op: 'hello' }));
-*/
