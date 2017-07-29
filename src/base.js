@@ -1,5 +1,6 @@
 /* @flow */
 import type { rxweb$Task } from './rxweb';
+import { WebSocketSubject } from 'rxjs/observable/dom/WebSocketSubject';
 import { rxweb$Route, rxweb$Middleware } from './rxweb';
 import { rxweb$Subject } from './subject';
 import { rxweb$Observer } from './observer';
@@ -8,6 +9,7 @@ export class rxweb$Base {
   sub: rxweb$Subject;
   middlewares: Array<rxweb$Middleware> = [];
   routes: Array<rxweb$Route> = [];
+  websocket: WebSocketSubject<any>;
  
   getSubject(): rxweb$Subject {
     return this.sub;

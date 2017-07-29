@@ -53,7 +53,7 @@ const middleware = (next: (value: any) => void) => (url: ?string) => {
             done: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${actionType}_SUCCESS` }),
             error: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${actionType}_ERROR` }),
             store: { dispatch, getState }
-          };          
+          };
           next(task);
           return reduxDispatch(task);
         };

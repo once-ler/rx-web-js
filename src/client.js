@@ -13,11 +13,14 @@ import type {
   Redux$Middleware,
   Redux$Dispatch
 } from './rxweb';
+import { webSocket } from 'rxjs/observable/dom/webSocket';
 import { rxweb$Subject, rxweb$Observer, rxweb$Middleware } from './rxweb';
 import { rxweb$Base } from './base';
-import { WebSocketReducer as webSocket, WebSocketMiddleware } from './websocket';
+import { WebSocketReducer, WebSocketMiddleware } from './websocket';
+import 'rxjs/add/operator/retry';
 
-type FuncArg = {webSocketUrl?: string};
+// type FuncArg = {webSocketUrl?: string};
+type WebSocketResponseHandler = (string, any) => (() => mixed);
 
 class rxweb$Client extends rxweb$Base {
   reduxMiddlewares: Array<Redux$Middleware> = [];
@@ -59,16 +62,43 @@ class rxweb$Client extends rxweb$Base {
     for (const r of this.middlewares) {
       const rxwebMiddleware = (api: MiddlewareAPI<Redux$State, Redux$Action>) => reduxDispatch => action => {
         if (action.type !== r.type) return reduxDispatch(action);
+        
+        const next = this.next;
         const { dispatch, getState } = api;
-
-        this.next({
+        
+        const nextTask: rxweb$Task = {
           ...action,
-          next: this.next,
+          next,
           init: () => dispatch({ ...getState(), type: `${action.type}_INIT` }),
           done: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${action.type}_SUCCESS` }),
           error: (payload: Redux$Action) => dispatch({ ...getState(), payload, type: `${action.type}_ERROR` }),
           store: { dispatch, getState }
-        });
+        };
+
+        const handleWsResponse: WebSocketResponseHandler = (actionType: string, msg: any) => {
+          const newAction: Object = {type: actionType, data: msg};
+          const newProp: rxweb$Task = {...nextTask, ...newAction };
+          next(newProp);
+          return reduxDispatch({...getState(), ...newAction});
+        };
+
+        switch (action.type) {
+          case 'WEBSOCKET_CONNECT':
+            if (!this.websocket)
+              this.websocket = webSocket(action.data.url);
+
+              this.websocket
+                .retry()
+                .subscribe(
+                  msg => handleWsResponse('WEBSOCKET_PAYLOAD', msg),
+                  err => handleWsResponse('WEBSOCKET_ERROR', err)
+                );
+            break;
+          default:
+            break;
+        }
+
+        next(nextTask);
         return reduxDispatch({...getState(), ...action});
       };
       this.reduxMiddlewares.push(rxwebMiddleware);
