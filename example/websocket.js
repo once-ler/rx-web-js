@@ -1,4 +1,4 @@
-const url = 'wss://echo.websocket.org/';
+const url = 'wss://echo.websocket1.org/';
 
 const client = new RxWeb.Client();
 
