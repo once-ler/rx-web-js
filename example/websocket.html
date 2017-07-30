@@ -21,13 +21,13 @@ h1 { color: rosybrown; margin: 0 10px;}
 <script src="rx-web.min.js"></script>
 <script src="Rx.min.js"></script>
 <script type="text/babel" >
-  window.log = (text) => {
+  window.log = (text, elid = 'logger') => {
     const li = document.createElement('LI');
     const pre = document.createElement('PRE');
     li.appendChild(pre);
     const textEl = document.createTextNode(`${new Date().toISOString()} - ${text}`);
     pre.appendChild(textEl);
-    document.getElementById('logger').appendChild(li);
+    document.getElementById(elid).appendChild(li);
   };
 </script>
 <script type="text/babel" src="websocket.js">

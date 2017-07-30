@@ -1,4 +1,4 @@
-const url = 'wss://echo.websocket1.org/';
+const url = 'wss://echo.websocket.org/';
 
 const client = new RxWeb.Client();
 
@@ -30,6 +30,8 @@ const rxReducers = client.getReduxReducers();
 console.log(rxMiddlewares);
 const reducers = Redux.combineReducers({...rxReducers});
 const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(...rxMiddlewares));
+
+store.subscribe(() => log(JSON.stringify(store.getState(), null, '  '), 'root'));
 
 store.dispatch({type: 'WEBSOCKET_CONNECT', data: { url }});
 
