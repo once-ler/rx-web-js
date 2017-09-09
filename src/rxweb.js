@@ -99,6 +99,7 @@ export class rxweb$Route {
 
 export { rxweb$Subject } from './subject';
 export { rxweb$Observer } from './observer';
+export { rxweb$Proxy } from './proxy';
 
 declare module 'rxweb' {
   declare var FilterFunc: rxweb$FilterFunc;
@@ -112,6 +113,7 @@ declare module 'rxweb' {
   declare var Observer: rxweb$Observer;
   declare var Subject: rxweb$Subject;
   declare var Route: rxweb$Route;
+  declare var Proxy: rxweb$Proxy;
   declare var ReduxStore: Redux$Store;
   declare var ReduxState: Redux$State;
   declare var ReduxAction: Redux$Action;
