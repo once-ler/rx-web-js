@@ -145,24 +145,41 @@ describe('test proxy', () => {
   it('server forwards requests to proxy', async () => {
     app = new rxweb$Server(3000);
 
-    const proxyAction = rxweb$Proxy('https://www.reddit.com/search.json');
-
+    const proxyAction = rxweb$Proxy({
+      target: 'https://www.reddit.com',
+      pathRewrite: {
+        '^/api/reddit': ''
+      },
+      secure: false,
+      changeOrigin: true
+    });
+    
     app.routes = [
       new rxweb$Route(
-        '/api/reddit',
+        '/api/reddit/search.json',
         'GET',
         proxyAction
       )
     ];
 
+    const HttpProxyCompletedMiddleware = new rxweb$Middleware(
+      task => task.type === 'HTTP_PROXY_COMPLETED',
+      task => {
+        // Note: ctx.response.res has already been sent to client.
+        console.log(task.data);
+      }
+    );
+
+    app.middlewares = [HttpProxyCompletedMiddleware];
+    app.start();
+
     const search = 'cats';
 
     const response = await request(app.getServer())
-      .get(`/api/reddit?q=${search}&syntax=plain&type=sr&restrict_sr=true&include_facets=false&limit=10&sr_detail=false`)
-      .send();
+      .get(`/api/reddit/search.json?q=${search}&syntax=plain&type=sr&restrict_sr=true&include_facets=false&limit=10&sr_detail=false`)
+      .set('Accept', 'application/json');
 
-    app.start();
-
+    // console.log(response.text);
   });
 
   after(function (done) {
