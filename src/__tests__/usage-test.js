@@ -2,10 +2,15 @@ import { describe, it } from 'mocha';
 import request from 'supertest-as-promised';
 import should from 'should';
 import {
-  rxweb$Client,
   rxweb$Middleware
 } from '../rxweb';
-import { combineReducers, createStore } from 'redux';
+import {
+  Client as rxweb$Client
+} from '../client';
+import { combineReducers, createStore, applyMiddleware } from 'redux';
+
+// Make WebSocket mimic browser.
+global.WebSocket = require('ws');
 
 describe('Useful errors for WebSocket when incorrectly used', () => {
   let client = new rxweb$Client();
@@ -32,8 +37,8 @@ describe('Useful errors for WebSocket when incorrectly used', () => {
 
   const rxMiddlewares = client.getReduxMiddlewares();
   const rxReducers = client.getReduxReducers();
-  const reducers = Redux.combineReducers({...rxReducers});
-  const store = Redux.createStore(reducers, {}, Redux.applyMiddleware(...rxMiddlewares));
+  const reducers = combineReducers({...rxReducers});
+  const store = createStore(reducers, {}, applyMiddleware(...rxMiddlewares));
 
   store.dispatch({type: 'WEBSOCKET_CONNECT', data: { url }});
 

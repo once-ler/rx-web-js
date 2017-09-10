@@ -16,9 +16,13 @@ import {
   rxweb$Task,
   rxweb$Middleware,
   rxweb$Subject,
-  rxweb$Server,
-  rxweb$Route
+  rxweb$Route,
+  rxweb$Proxy
 } from '../rxweb';
+
+import {
+  Server as rxweb$Server
+} from '../server';
 
 function promiseTo(fn) {
   return new Promise((resolve, reject) => {
@@ -92,14 +96,14 @@ describe('test routes and middlewares', () => {
       new rxweb$Route(
         '/foo',
         'POST',
-        (next, req, res) => {
+        (req, res, next) => {
           res.body = { requestBody: req.body, path: 'foo' };
         }
       ),
       new rxweb$Route(
         '/bar',
         'POST',
-        (next, req, res) => {
+        (req, res, next) => {
           res.body = { requestBody: req.body, path: 'bar' };
         }
       )
@@ -126,6 +130,39 @@ describe('test routes and middlewares', () => {
     const resp1 = JSON.parse(response1.text);
     resp1.should.have.propertyByPath('requestBody', 'test').equal('foo');
     resp1.should.have.property('path').equal('bar');
+  });
+
+  after(function (done) {
+    app.stop(done);
+  });
+
+});
+
+describe('test proxy', () => {
+  
+  let app;
+
+  it('server forwards requests to proxy', async () => {
+    app = new rxweb$Server(3000);
+
+    const proxyAction = rxweb$Proxy('https://www.reddit.com/search.json');
+
+    app.routes = [
+      new rxweb$Route(
+        '/api/reddit',
+        'GET',
+        proxyAction
+      )
+    ];
+
+    const search = 'cats';
+
+    const response = await request(app.getServer())
+      .get(`/api/reddit?q=${search}&syntax=plain&type=sr&restrict_sr=true&include_facets=false&limit=10&sr_detail=false`)
+      .send();
+
+    app.start();
+
   });
 
   after(function (done) {

@@ -7,6 +7,7 @@
 import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch, MiddlewareAPI } from 'redux';
 import { rxweb$Subject } from './subject';
 import { rxweb$Observer } from './observer';
+import { rxweb$Proxy } from './proxy';
 
 // Redux types
 export type Redux$State = any;
