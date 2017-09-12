@@ -75,7 +75,7 @@ describe('client can connect', () => {
 
     const response = await request(app.getServer())
       .get('/');
-
+    
     response.text.should.equal('Not Found');
   });
 
@@ -86,7 +86,7 @@ describe('client can connect', () => {
 });
 
 describe('test routes and middlewares', () => {
-
+  
   let app;
 
   it('server recognizes routes', async () => {
@@ -94,17 +94,24 @@ describe('test routes and middlewares', () => {
 
     app.routes = [
       new rxweb$Route(
+        '/just',
+        'GET',
+        (req, res, next) => {
+          res.send({ requestBody: 'just' });
+        }
+      ),
+      new rxweb$Route(
         '/foo',
         'POST',
         (req, res, next) => {
-          res.body = { requestBody: req.body, path: 'foo' };
+          res.send({ requestBody: req.body, path: 'foo' });
         }
       ),
       new rxweb$Route(
         '/bar',
         'POST',
         (req, res, next) => {
-          res.body = { requestBody: req.body, path: 'bar' };
+          res.send({ requestBody: req.body, path: 'bar' });
         }
       )
     ];
@@ -166,6 +173,7 @@ describe('test proxy', () => {
       task => task.type === 'HTTP_PROXY_COMPLETED',
       task => {
         // Note: ctx.response.res has already been sent to client.
+        // Just showing the destination url for now.
         console.log(task.data);
       }
     );
