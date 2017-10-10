@@ -98,6 +98,26 @@ export class rxweb$Route {
   }
 }
 
+type rxweb$StaticOptions = {
+  maxage: number;
+  hidden: bool;
+  index: string;
+  defer: bool;
+  gzip: bool;
+  extensions: bool;
+};
+
+export class rxweb$Static {
+  root: string = '.';
+  options: rxweb$StaticOptions = {
+    maxage: 0, hidden: false, index: 'index.html', defer: false, gzip: true, extensions: false
+  };
+  contructor(_root: string, _options?: rxweb$StaticOptions) {
+    this.root = _root;
+    this.options = { ...this.options, ..._options };
+  }
+}
+
 export { rxweb$Subject } from './subject';
 export { rxweb$Observer } from './observer';
 export { rxweb$Proxy } from './proxy';

@@ -4,6 +4,7 @@ import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
 import KoaServerBodyParser from 'koa-bodyparser';
 import isJSON from 'koa-is-json';
+import serve from 'koa-serve-static';
 import statuses from 'statuses';
 import Stream from 'stream';
 import type {
@@ -70,6 +71,12 @@ class rxweb$Server extends rxweb$Base {
       .use(router.allowedMethods);
   }
 
+  applyStatics() {
+    for (const r of this.statics) {
+      this.server.use(serve(r.root, r.options));
+    }
+  }
+
   start() {
     // Depending on the observer's filter function,
     // each observer will act or ignore any incoming web request.
@@ -77,6 +84,9 @@ class rxweb$Server extends rxweb$Base {
 
     // Apply user-defined routes
     this.applyRoutes();
+
+    // Apply user-defined static file paths
+    this.applyStatics();
 
     // Start the server.
     this.listener = this.server.listen(this.port);

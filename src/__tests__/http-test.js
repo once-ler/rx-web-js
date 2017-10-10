@@ -17,7 +17,8 @@ import {
   rxweb$Middleware,
   rxweb$Subject,
   rxweb$Route,
-  rxweb$Proxy
+  rxweb$Proxy,
+  rxweb$Static
 } from '../rxweb';
 
 import {
@@ -53,7 +54,7 @@ describe('test harness', () => {
 
 describe('can create http server', () => {
 
-  const app = new rxweb$Server(3000);
+  const app = new rxweb$Server(3001);
 
   it('resolves to an instance of rxweb$Server', () => {    
     app.should.be.an.instanceOf(rxweb$Server);
@@ -65,18 +66,19 @@ describe('can create http server', () => {
 
 });
 
+
 describe('client can connect', () => {
 
   let app;
 
   it('get a response from the server', async () => {
-    app = new rxweb$Server(3000);
+    app = new rxweb$Server(3001);
     app.start();
-
+    
     const response = await request(app.getServer())
       .get('/');
     
-    response.text.should.equal('Not Found');
+    response.text.should.match(/Not Found/);
   });
 
   after(function (done) {
@@ -90,7 +92,7 @@ describe('test routes and middlewares', () => {
   let app;
 
   it('server recognizes routes', async () => {
-    app = new rxweb$Server(3000);
+    app = new rxweb$Server(3001);
 
     app.routes = [
       new rxweb$Route(
@@ -144,13 +146,13 @@ describe('test routes and middlewares', () => {
   });
 
 });
-
+/*
 describe('test proxy', () => {
   
   let app;
 
   it('server forwards requests to proxy', async () => {
-    app = new rxweb$Server(3000);
+    app = new rxweb$Server(3001);
 
     const proxyAction = rxweb$Proxy({
       target: 'https://www.reddit.com',
@@ -187,11 +189,35 @@ describe('test proxy', () => {
       .get(`/api/reddit/search.json?q=${search}&syntax=plain&type=sr&restrict_sr=true&include_facets=false&limit=10&sr_detail=false`)
       .set('Accept', 'application/json');
 
-    // console.log(response.text);
+    console.log(response.text);
   });
 
   after(function (done) {
     app.stop(done);
   });
 
+});
+*/
+describe('test static file', () => {  
+  let app;
+
+  it('server can serve static file', async () => {
+    app = new rxweb$Server(3001);
+
+    app.statics = [
+      new rxweb$Static('fixtures')
+    ]
+    app.start();
+
+    const response = await request(app.getServer())
+    .get('/fixtures')
+    .set('Accept', 'text/html');
+
+    response.text.should.match(/Used to test serving static file/);
+  });
+
+  after(function (done) {
+    app.stop(done);
+  });
+  
 });
