@@ -54,7 +54,7 @@ describe('test harness', () => {
 
 describe('can create http server', () => {
 
-  const app = new rxweb$Server(3001);
+  const app = new rxweb$Server(3000);
 
   it('resolves to an instance of rxweb$Server', () => {    
     app.should.be.an.instanceOf(rxweb$Server);
@@ -72,13 +72,14 @@ describe('client can connect', () => {
   let app;
 
   it('get a response from the server', async () => {
-    app = new rxweb$Server(3001);
+    app = new rxweb$Server(3000);
     app.start();
     
     const response = await request(app.getServer())
       .get('/');
-    
-    response.text.should.match(/Not Found/);
+
+    response.statusCode.should.equal(404);  
+    response.text.should.equal('Not Found');
   });
 
   after(function (done) {
@@ -92,7 +93,7 @@ describe('test routes and middlewares', () => {
   let app;
 
   it('server recognizes routes', async () => {
-    app = new rxweb$Server(3001);
+    app = new rxweb$Server(3000);
 
     app.routes = [
       new rxweb$Route(
@@ -146,13 +147,13 @@ describe('test routes and middlewares', () => {
   });
 
 });
-/*
+
 describe('test proxy', () => {
   
   let app;
 
   it('server forwards requests to proxy', async () => {
-    app = new rxweb$Server(3001);
+    app = new rxweb$Server(3000);
 
     const proxyAction = rxweb$Proxy({
       target: 'https://www.reddit.com',
@@ -197,20 +198,20 @@ describe('test proxy', () => {
   });
 
 });
-*/
+
 describe('test static file', () => {  
   let app;
 
   it('server can serve static file', async () => {
-    app = new rxweb$Server(3001);
+    app = new rxweb$Server(3000);
 
     app.statics = [
-      new rxweb$Static('fixtures')
+      new rxweb$Static(__dirname + '/fixtures')
     ]
     app.start();
 
     const response = await request(app.getServer())
-    .get('/fixtures')
+    .get('/index.html')
     .set('Accept', 'text/html');
 
     response.text.should.match(/Used to test serving static file/);

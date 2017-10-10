@@ -12,6 +12,8 @@ import type {
   rxweb$Request,
   rxweb$Response,
   rxweb$Route,
+  rxweb$Proxy,
+  rxweb$Static,
   rxweb$SocketServer,
   rxweb$Socket,
   rxweb$Body,
@@ -73,7 +75,13 @@ class rxweb$Server extends rxweb$Base {
 
   applyStatics() {
     for (const r of this.statics) {
-      this.server.use(serve(r.root, r.options));
+      const _serve = serve(r.root, r.options);
+      this.server.use((ctx: any) => {
+        _serve(ctx).catch((err: any) => {
+          ctx.res.statusCode = err ? (err.status || 502) : 404;
+          ctx.res.end(err ? err.stack : 'sorry!');
+        });
+      });
     }
   }
 
@@ -82,11 +90,11 @@ class rxweb$Server extends rxweb$Base {
     // each observer will act or ignore any incoming web request.
     this.makeObserversAndSubscribeFromMiddlewares();
 
-    // Apply user-defined routes
-    this.applyRoutes();
-
     // Apply user-defined static file paths
     this.applyStatics();
+
+    // Apply user-defined routes
+    this.applyRoutes();
 
     // Start the server.
     this.listener = this.server.listen(this.port);
@@ -152,13 +160,17 @@ export {
   rxweb$Route as Route,
   rxweb$Subject as Subject,
   rxweb$Observer as Observer,
-  rxweb$Task as Task
+  rxweb$Task as Task,
+  rxweb$Proxy as Proxy,
+  rxweb$Static as Static
 } from './rxweb';
 
 declare module 'rxweb' {
   declare var Subject: rxweb$Subject;
   declare var Observer: rxweb$Observer;
   declare var Route: rxweb$Route;
+  declare var Proxy: rxweb$Proxy;
+  declare var Static: rxweb$Static;
   declare var FilterFunc: rxweb$FilterFunc;
   declare var SubscribeFunc: rxweb$SubscribeFunc;
   declare var Middleware: Class<rxweb$Middleware>;

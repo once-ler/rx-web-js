@@ -112,7 +112,7 @@ export class rxweb$Static {
   options: rxweb$StaticOptions = {
     maxage: 0, hidden: false, index: 'index.html', defer: false, gzip: true, extensions: false
   };
-  contructor(_root: string, _options?: rxweb$StaticOptions) {
+  constructor(_root: string, _options?: rxweb$StaticOptions) {
     this.root = _root;
     this.options = { ...this.options, ..._options };
   }
@@ -135,6 +135,7 @@ declare module 'rxweb' {
   declare var Subject: rxweb$Subject;
   declare var Route: rxweb$Route;
   declare var Proxy: rxweb$Proxy;
+  declare var Static: rxweb$Static;
   declare var ReduxStore: Redux$Store;
   declare var ReduxState: Redux$State;
   declare var ReduxAction: Redux$Action;
