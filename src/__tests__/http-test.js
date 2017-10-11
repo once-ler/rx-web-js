@@ -17,12 +17,12 @@ import {
   rxweb$Middleware,
   rxweb$Subject,
   rxweb$Route,
-  rxweb$Proxy,
   rxweb$Static
 } from '../rxweb';
 
 import {
-  Server as rxweb$Server
+  Server as rxweb$Server,
+  rxweb$Proxy
 } from '../server';
 
 function promiseTo(fn) {

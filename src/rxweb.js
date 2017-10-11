@@ -7,7 +7,6 @@
 import type { Store as RdxStore, Middleware as RdxMiddleware, Dispatch, MiddlewareAPI } from 'redux';
 import { rxweb$Subject } from './subject';
 import { rxweb$Observer } from './observer';
-import { rxweb$Proxy } from './proxy';
 
 // Redux types
 export type Redux$State = any;
@@ -120,7 +119,6 @@ export class rxweb$Static {
 
 export { rxweb$Subject } from './subject';
 export { rxweb$Observer } from './observer';
-export { rxweb$Proxy } from './proxy';
 
 declare module 'rxweb' {
   declare var FilterFunc: rxweb$FilterFunc;

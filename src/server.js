@@ -12,7 +12,6 @@ import type {
   rxweb$Request,
   rxweb$Response,
   rxweb$Route,
-  rxweb$Proxy,
   rxweb$Static,
   rxweb$SocketServer,
   rxweb$Socket,
@@ -153,6 +152,8 @@ export class rxweb$HttpsServer extends rxweb$Server {
   }
 }
 
+export { rxweb$Proxy, rxweb$Proxy as Proxy } from './proxy';
+
 export { rxweb$Server as Server };
 
 export {
@@ -161,7 +162,6 @@ export {
   rxweb$Subject as Subject,
   rxweb$Observer as Observer,
   rxweb$Task as Task,
-  rxweb$Proxy as Proxy,
   rxweb$Static as Static
 } from './rxweb';
 
