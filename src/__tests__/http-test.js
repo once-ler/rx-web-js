@@ -54,7 +54,7 @@ describe('test harness', () => {
 
 describe('can create http server', () => {
 
-  const app = new rxweb$Server(3000);
+  const app = new rxweb$Server(8000);
 
   it('resolves to an instance of rxweb$Server', () => {    
     app.should.be.an.instanceOf(rxweb$Server);
@@ -72,7 +72,7 @@ describe('client can connect', () => {
   let app;
 
   it('get a response from the server', async () => {
-    app = new rxweb$Server(3000);
+    app = new rxweb$Server(8000);
     app.start();
     
     const response = await request(app.getServer())
@@ -93,7 +93,7 @@ describe('test routes and middlewares', () => {
   let app;
 
   it('server recognizes routes', async () => {
-    app = new rxweb$Server(3000);
+    app = new rxweb$Server(8000);
 
     app.routes = [
       new rxweb$Route(
@@ -153,7 +153,7 @@ describe('test proxy', () => {
   let app;
 
   it('server forwards requests to proxy', async () => {
-    app = new rxweb$Server(3000);
+    app = new rxweb$Server(8000);
 
     const proxyAction = rxweb$Proxy({
       target: 'https://www.reddit.com',
@@ -203,7 +203,7 @@ describe('test static file', () => {
   let app;
 
   it('server can serve static file', async () => {
-    app = new rxweb$Server(3000);
+    app = new rxweb$Server(8000);
 
     app.statics = [
       new rxweb$Static(__dirname + '/fixtures')
