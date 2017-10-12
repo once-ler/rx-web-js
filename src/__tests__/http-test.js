@@ -182,6 +182,11 @@ describe('test proxy', () => {
     );
 
     app.middlewares = [HttpProxyCompletedMiddleware];
+    
+    app.statics = [
+      new rxweb$Static('/dist', __dirname + '/fixtures')
+    ];
+    
     app.start();
 
     const search = 'cats';
@@ -191,6 +196,18 @@ describe('test proxy', () => {
       .set('Accept', 'application/json');
 
     console.log(response.text);
+
+    const response1 = await request(app.getServer())
+    .get('/dist/index.html')
+    .set('Accept', 'text/html');
+
+    console.log(response1.text);
+
+    const response2 = await request(app.getServer())
+    .get('/dist/something-not-there')
+    .set('Accept', 'text/html');
+
+    console.log(response2.text);
   });
 
   after(function (done) {
@@ -206,12 +223,12 @@ describe('test static file', () => {
     app = new rxweb$Server(8000);
 
     app.statics = [
-      new rxweb$Static(__dirname + '/fixtures')
-    ]
+      new rxweb$Static('/dist', __dirname + '/fixtures')
+    ];
     app.start();
 
     const response = await request(app.getServer())
-    .get('/index.html')
+    .get('/dist/index.html')
     .set('Accept', 'text/html');
 
     response.text.should.match(/Used to test serving static file/);

@@ -3,6 +3,7 @@
 import KoaServer from 'koa';
 import KoaServerRouter from 'koa-router';
 import KoaServerBodyParser from 'koa-bodyparser';
+import KoaMount from 'koa-mount';
 import isJSON from 'koa-is-json';
 import serve from 'koa-serve-static';
 import statuses from 'statuses';
@@ -74,13 +75,14 @@ class rxweb$Server extends rxweb$Base {
 
   applyStatics() {
     for (const r of this.statics) {
+      // defer: true is the default option.
       const _serve = serve(r.root, r.options);
-      this.server.use((ctx: any) => {
-        _serve(ctx).catch((err: any) => {
+      this.server.use(KoaMount(r.mount, (ctx: any) => {
+        _serve(ctx).catch(err => {
           ctx.res.statusCode = err ? (err.status || 502) : 404;
-          ctx.res.end(err ? err.stack : 'sorry!');
+          ctx.res.end(err ? err.stack : 'Sorry!');
         });
-      });
+      }));
     }
   }
 
@@ -91,7 +93,7 @@ class rxweb$Server extends rxweb$Base {
 
     // Apply user-defined static file paths
     this.applyStatics();
-
+    
     // Apply user-defined routes
     this.applyRoutes();
 

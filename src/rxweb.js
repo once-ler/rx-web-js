@@ -107,11 +107,13 @@ type rxweb$StaticOptions = {
 };
 
 export class rxweb$Static {
+  mount: string = '/dist';
   root: string = '.';
   options: rxweb$StaticOptions = {
-    maxage: 0, hidden: false, index: 'index.html', defer: false, gzip: true, extensions: false
+    maxage: 0, dotfiles: 'ignore', index: 'index.html', defer: true, gzip: true, extensions: false
   };
-  constructor(_root: string, _options?: rxweb$StaticOptions) {
+  constructor(_mount: string, _root: string, _options?: rxweb$StaticOptions) {
+    this.mount = _mount;
     this.root = _root;
     this.options = { ...this.options, ..._options };
   }
