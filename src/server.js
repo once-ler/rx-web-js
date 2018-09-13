@@ -76,7 +76,7 @@ class rxweb$Server extends rxweb$Base {
   applyStatics() {
     for (const r of this.statics) {
       // defer: true is the default option.
-      const _serve = serve(r.root, r.options);
+      const _serve = serve(r.root + r.mount, r.options);
       this.server.use(KoaMount(r.mount, (ctx: any) => {
         _serve(ctx).catch(err => {
           ctx.res.statusCode = err ? (err.status || 502) : 404;
